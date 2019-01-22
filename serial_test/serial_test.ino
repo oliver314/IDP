@@ -30,3 +30,7 @@ void SerialTest1() {
     }
  }
 }
+
+void SerialTest2(){
+  Serial.print("Hello World");
+}
