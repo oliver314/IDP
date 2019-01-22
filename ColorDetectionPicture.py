@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import math
 
 def detectColor(frame, lower, upper, minArea):
     # Convert BGR to HSV
@@ -9,8 +9,8 @@ def detectColor(frame, lower, upper, minArea):
     # Threshold the HSV image to get only green colors
     mask = cv2.inRange(hsv, lower, upper)
 
-    cv2.imshow('frame',mask)
-    cv2.waitKey(0)
+    #cv2.imshow('frame',mask)
+    #cv2.waitKey(0)
     kernel = np.ones((5,5),'int')
     dilated = cv2.dilate(mask,kernel)
     # Bitwise-AND mask and original image
@@ -24,7 +24,6 @@ def detectColor(frame, lower, upper, minArea):
         area = cv2.contourArea(cnt)
 
         if area >minArea:
-
             #draw rectangle around found zones
             (x,y,w,h) = cv2.boundingRect(cnt)
             cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
@@ -35,35 +34,52 @@ fool=True
 while(fool):
     fool=False
     # Take one
-    frame = cv2.imread('test2.jpg')
-    
-
+    frame = cv2.imread('lightOff2Scew.jpg')
+    #1080*1920*3
+    frame = frame[0:1080,160:1520]
+    frameCopy = frame.copy()
     # define range of green color in HSV
-    lower_green = np.array([55,60,100])
-    upper_green = np.array([80,255,255])
+    #use gimp for color code: 160, 20, 73 for green robot
+    #212,81,66 for blue robot
+    #area +- 1100
+    #208,66,87 for cells or 208,63,88
+    #area +- 70 - 260
+    #172,80,60 for save zone
+    lower_greenR = np.array([140/2,10*255/100,60*255/100])
+    upper_greenR = np.array([170/2,30*255/100,90*255/100])
+    lower_blueR = np.array([200/2,70*255/100,60*255/100])
+    upper_blueR = np.array([220/2,90*255/100,75*255/100])
+    lower_cells = np.array([200/2,40*255/100,70*255/100])
+    upper_cells = np.array([215/2,70*255/100,95*255/100])
+    lower_safe = np.array([160/2,70*255/100,50*255/100])
+    upper_safe = np.array([180/2,90*255/100,70*255/100])
 
     #TODO crop to all except safe zone
     #detect green
     #that s the robot
     #get xy and orientation
-    #detectColor(frame, lower_green, upper_green, 1000);
+    blueF = detectColor(frame, lower_blueR, upper_blueR, 1000)[0]
+    greenF = detectColor(frame, lower_greenR, upper_greenR, 1000)[0]
+    #print(blueF)
+    #print(greenF)
+    blueC = (blueF[0]+blueF[2]/2,blueF[1] + blueF[3]/2)
+    greenC = (greenF[0]+greenF[2]/2,greenF[1] + greenF[3]/2)
 
-
-    # define range of blue color in HSV
-    #lower_blue = np.array([110,50,130])
-    #upper_blue = np.array([150,255,255])
-    lower_blue = np.array([100,50,130])
-    upper_blue = np.array([150,255,255])
-    #crop image to dangerous black zone
+    #angle with respect to horizontal, positive as anticlockwise. Counterintuitive sign in expression bc y axis inverted
+    alpha = math.degrees(math.atan2(-blueC[1]+greenC[1],blueC[0]-greenC[0]))
+    print("Angle and coordinates of the robot")
+    print(alpha)
+    print(greenC)
+    #crop image to dangerous black zone (only needed if too imprecise)
     #get coordinates of cells
     #crop_img = img[y:y+h, x:x+w]
-    frame2 = frame[50:900,130:450];
-    detectColor(frame2, lower_blue, upper_blue,0);
+    #frame2 = frameCopy[20:1060,740:1400];
+    coordMines = detectColor(frame, lower_cells, upper_cells,50);
+    print("Coordinates of cells")
+    print(coordMines)
 
-    cv2.imshow('frame',frame2)
+    cv2.imshow('frame',frame)
     cv2.waitKey(0)
-    
-    #cv2.imshow('frame',frame)
-    #cv2.waitKey(0)
+
 #cap.release()
 #cv2.destroyAllWindows()
