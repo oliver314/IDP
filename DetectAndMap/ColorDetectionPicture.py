@@ -74,7 +74,10 @@ while(fool):
     #get coordinates of cells
     #crop_img = img[y:y+h, x:x+w]
     #frame2 = frameCopy[20:1060,740:1400];
-    coordMines = detectColor(frame, lower_cells, upper_cells,50);
+    rectMines = detectColor(frame, lower_cells, upper_cells,50);
+    coordMines=[]
+    for rect in rectMines:
+        coordMines.append((rect[0]+rect[2]/2,rect[1] + rect[3]/2))
     print("Coordinates of cells")
     print(coordMines)
 
