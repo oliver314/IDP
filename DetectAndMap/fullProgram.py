@@ -95,9 +95,9 @@ while(1):
     #get xy and orientation
     goldF = detectColor(frame, lower_goldR, upper_goldR, 200)
     greenF = detectColor(frame, lower_greenR, upper_greenR, 200)
+    
     if len(goldF)==0 or len(greenF)==0:
         print(str(len(goldF)) + "  " + str(len(greenF)))
-        continue
     goldF = goldF[0]
     greenF = greenF[0]
     #print(goldF)
