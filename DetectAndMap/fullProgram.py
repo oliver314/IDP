@@ -93,6 +93,7 @@ while(1):
     blueF = detectColor(frame, lower_blueR, upper_blueR, 200)
     greenF = detectColor(frame, lower_greenR, upper_greenR, 200)
     if len(blueF)==0 or len(greenF)==0:
+        print(len(blueF)  + " " + len(greenF))
         continue
     blueF = blueF[0]
     greenF = greenF[0]
