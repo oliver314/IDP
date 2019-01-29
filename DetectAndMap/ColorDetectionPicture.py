@@ -33,10 +33,10 @@ fool=True
 while(fool):
     fool=False
     # Take one
-    frame = cv2.imread('gold5.jpg')
+    #frame = cv2.imread('gold5.jpg')
     #1080*1920*3
-    #frame = frame[0:1080,160:1520]
-    frameCopy = frame.copy()
+    frame = frame[0:1080,160:1520]
+    #frameCopy = frame.copy()
     # define range of green color in HSV
     #use gimp for color code: 160, 20, 73 for green robot
     #212,81,66 for blue robot

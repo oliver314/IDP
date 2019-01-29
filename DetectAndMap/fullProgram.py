@@ -4,8 +4,8 @@ import math
 import serial  # Serial imported for Serial communication
 import time  # Required to use delay functions
 print("Imports done")
-cap = cv2.VideoCapture(0)
-#ArduinoSerial = serial.Serial('com5', 9600)  # Create Serial port object called arduinoSerialData
+cap = cv2.VideoCapture(1)
+ArduinoSerial = serial.Serial('com3', 9600)  # Create Serial port object called arduinoSerialData
 print("Capture started")
 time.sleep(2)  # wait for 2 secounds for the communication to get established
 
@@ -18,11 +18,13 @@ time.sleep(2)  # wait for 2 secounds for the communication to get established
 #172,80,60 for save zone
 #values light on(light off is more accurate, values in ColorDetectionPicture.py)
 
-    #values gold green T
-lower_greenR = np.array([82/2,0*255/100,50*255/100])
-upper_greenR = np.array([135/2,27*255/100,80*255/100])
-lower_goldR = np.array([38/2,30*255/100,94*255/100])
-upper_goldR = np.array([57/2,68*255/100,90102*255/100])
+#values gold green T
+lower_greenR = np.array([72/2,0*255/100,50*255/100])
+upper_greenR = np.array([135/2,27*255/100,90*255/100])
+lower_goldR = np.array([320/2,10*255/100,70*255/100])
+upper_goldR = np.array([360/2,60*255/100,110*255/100])
+#lower_goldR = np.array([38/2,30*255/100,94*255/100])
+#upper_goldR = np.array([57/2,68*255/100,102*255/100])
 lower_cells = np.array([195/2,30*255/100,65*255/100])
 upper_cells = np.array([215/2,80*255/100,95*255/100])
 
@@ -65,6 +67,7 @@ deltaT = 1
 kd = 0.01
 kp = 0.01
 
+count = 0
 while(1):
     # Take each frame
     _, frame = cap.read()
@@ -93,11 +96,15 @@ while(1):
     #detect green
     #that s the robot
     #get xy and orientation
-    goldF = detectColor(frame, lower_goldR, upper_goldR, 200)
-    greenF = detectColor(frame, lower_greenR, upper_greenR, 200)
+    goldF = detectColor(frame, lower_goldR, upper_goldR, 120)
+    greenF = detectColor(frame, lower_greenR, upper_greenR, 120)
     
     if len(goldF)==0 or len(greenF)==0:
         print(str(len(goldF)) + "  " + str(len(greenF)))
+        if(count % 5 == 0):
+            cv2.imwrite("frame" + str(count/5)+ ".png", frame)
+        count+=1
+        continue
     goldF = goldF[0]
     greenF = greenF[0]
     #print(goldF)
@@ -112,6 +119,8 @@ while(1):
     print(greenC)
 
     targetMine = coordMines[cellsChecked]
+
+    cv2.circle(frame,(round(targetMine[0]),round(targetMine[1])), 10, (0,0,255), -1)
     alphaRef = math.degrees(math.atan2(-targetMine[1]+greenC[1],targetMine[0]-greenC[0]))
 
     errorAngleOldOld = errorAngleOld
@@ -120,32 +129,44 @@ while(1):
     print("ErrorAngle")
     print(errorAngle)
 
+
+    PD = 0
     #makes no sense to try and correct course while driving
     if errorAngle > 45:
         print("Turn left")
-        #ArduinoSerial.write(254)
+        PD = 254
+        #ArduinoSerial.write((254).to_bytes(1, 'big'))
     elif errorAngle < -45:
         print("Turn right")
-        #ArduinoSerial.write(255)
+        PD = 255
+        #ArduinoSerial.write((255).to_bytes(1, 'big'))
     else:
         deriv = (errorAngle-errorAngleOldOld)/(2*deltaT)
         PD = kd * deriv + kp * errorAngle 
         #transform value to 0 to 200
         print("Value passed to Arduino")
         print(100 + 200*PD) #thus 100 means straight, and above 100 is to left
-        #ArduinoSerial.write(PD)
+        PD = 100 + 200*PD
+
+    if PD < 0:
+        PD = 0
+    elif PD > 255:
+        PD = 253
+    ArduinoSerial.write(round(PD).to_bytes(1, 'big'))
     time.sleep(0.2)
 
-
-    #if ArduinoSerial.readline().decode('utf-8') == 0:
-    #cellsChecked += 1
+    if ArduinoSerial.in_waiting:
+        if ArduinoSerial.readline().decode('utf-8') == 0:
+           cellsChecked += 1
 
     deltaT = time.time()-timeOld
     timeOld = time.time()
 
 
-    #cv2.imshow('frame',frame)
-    #cv2.waitKey(0)
+    cv2.imshow('frame',frame)
+    # Press Q on keyboard to  exit
+    if cv2.waitKey(25) & 0xFF == ord('q'):
+      break
 
 cap.release()
 cv2.destroyAllWindows()
