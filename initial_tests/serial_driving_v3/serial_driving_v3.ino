@@ -28,10 +28,9 @@ void setup() {
 }
 
 void loop() {
-  int spd;
+  int val;
   int M3spd;
   int M4spd;
-  int dirn;
   const int crit = 100;
 
   if(Serial.available() > 0){
@@ -41,10 +40,10 @@ void loop() {
     M3->run(FORWARD);
     M4->run(FORWARD);
     
-    if (spd == crit){
+    if (val == crit){
       // Run straight if speed = crit
-      M4->setSpeed(spd);
-      M3->setSpeed(spd);
+      M4->setSpeed(val);
+      M3->setSpeed(val);
     }
 
     else if (spd == 254){
@@ -55,18 +54,40 @@ void loop() {
       M3->setSpeed(crit);
     }
 
-    else if (spd == 255){
+    else if (val == 255){
       // Sharp turn right
       M3->run(FORWARD);
       M4->run(BACKWARD);
       M4->setSpeed(crit);
       M3->setSpeed(crit);
     }
+
+    else if (val == 253){
+      open_gate();
+      M3->run(BACKWARD);
+      M4->run(BACKWARD);
+      M4->setSpeed(crit);
+      M3->setSpeed(crit);
+      delay(1000)
+      halt();
+    }
     
     else{
-      M4->setSpeed(spd);
-      M3->setSpeed(2 * crit - spd);
-    }
-      
+      M4->setSpeed(val);
+      M3->setSpeed(2 * crit - val);
+    } 
   }
+}
+
+void open_gate(){
+  // Code to open gate
+}
+
+void close_gate(){
+  // Code to close gate
+}
+
+void halt(){
+  M4->setSpeed(0);
+  M3->setSpeed(0);
 }
