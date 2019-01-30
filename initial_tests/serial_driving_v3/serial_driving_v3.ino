@@ -28,6 +28,7 @@ void setup() {
 }
 
 void loop() {
+  int spd;
   int val;
   int M3spd;
   int M4spd;
@@ -35,7 +36,7 @@ void loop() {
 
   if(Serial.available() > 0){
     delay(100);
-    spd = Serial.read();
+    val = Serial.read();
 
     M3->run(FORWARD);
     M4->run(FORWARD);
@@ -46,29 +47,32 @@ void loop() {
       M3->setSpeed(val);
     }
 
-    else if (spd == 254){
-      // Sharp turn left
-      M3->run(BACKWARD);
-      M4->run(FORWARD);
-      M4->setSpeed(crit);
-      M3->setSpeed(crit);
-    }
-
     else if (val == 255){
       // Sharp turn right
-      M3->run(FORWARD);
       M4->run(BACKWARD);
+      M3->run(FORWARD);
       M4->setSpeed(crit);
       M3->setSpeed(crit);
     }
 
+    else if (val == 254){  
+      // Sharp turn left
+      M4->run(FORWARD);
+      M3->run(BACKWARD);
+      M4->setSpeed(crit);
+      M3->setSpeed(crit);
+    }
+    //arrived at green zone
     else if (val == 253){
       open_gate();
       M3->run(BACKWARD);
       M4->run(BACKWARD);
       M4->setSpeed(crit);
       M3->setSpeed(crit);
-      delay(1000)
+      delay(1000);
+      halt();
+    }
+    else if(val == 252){
       halt();
     }
     

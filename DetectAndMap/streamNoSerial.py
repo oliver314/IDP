@@ -3,10 +3,9 @@ import numpy as np
 import math
 import serial  # Serial imported for Serial communication
 import time  # Required to use delay functions
-import keyboard
 print("Imports done")
 cap = cv2.VideoCapture(1)
-ArduinoSerial = serial.Serial('com3', 9600)  # Create Serial port object called arduinoSerialData
+#ArduinoSerial = serial.Serial('com3', 9600)  # Create Serial port object called arduinoSerialData
 print("Capture started")
 time.sleep(2)  # wait for 2 secounds for the communication to get established
 
@@ -65,19 +64,14 @@ errorAngleOld = 0
 errorAngleOldOld = 0
 timeOld = 0
 deltaT = 1
-kd = 0.0001
+kd = 0.01
 kp = 0.01
 timeLastCell = time.time()
+
 count = 0
-
-#start on space
-while not keyboard.is_pressed(' '):
-    pass
-
 while(1):
     # Take each frame
     _, frame = cap.read()
-    print()
     #1080*1920*3
     frame = frame[0:480, 0:560]
     #frameCopy = frame.copy()
@@ -100,7 +94,7 @@ while(1):
         if(len(coordMines)==0):
             continue
         coordMines.append((0,270))
-        coordMines.append((15,75))
+        coordMines.append((30,60))
         firstTime = False
 
     #crop to all except safe zone
@@ -112,8 +106,8 @@ while(1):
     
     if len(goldF)==0 or len(greenF)==0:
         print(str(len(goldF)) + "  " + str(len(greenF)))
-        #(count % 5 == 0):
-            #cv2.imwrite("frame" + str(count/5)+ ".png", frame)
+        if(count % 5 == 0):
+            cv2.imwrite("frame" + str(count/5)+ ".png", frame)
         count+=1
         continue
     goldF = goldF[0]
@@ -125,9 +119,9 @@ while(1):
 
     #angle with respect to horizontal, positive as anticlockwise. Counterintuitive sign in expression bc y axis inverted
     alpha = math.degrees(math.atan2(-goldC[1]+greenC[1],goldC[0]-greenC[0]))
-    #print("Angle and coordinates of the robot")
-    #print(alpha)
-    #print(greenC)
+    print("Angle and coordinates of the robot")
+    print(alpha)
+    print(greenC)
 
     targetMine = coordMines[cellsChecked]
 
@@ -140,13 +134,14 @@ while(1):
     print("ErrorAngle")
     print(errorAngle)
 
+
     PD = 0
     #makes no sense to try and correct course while driving
-    if errorAngle > 30:
+    if errorAngle > 45:
         print("Turn left")
         PD = 254
         #ArduinoSerial.write((254).to_bytes(1, 'big'))
-    elif errorAngle < -30:
+    elif errorAngle < -45:
         print("Turn right")
         PD = 255
         #ArduinoSerial.write((255).to_bytes(1, 'big'))
@@ -154,42 +149,35 @@ while(1):
         deriv = (errorAngle-errorAngleOldOld)/(2*deltaT)
         PD = kd * deriv + kp * errorAngle 
         #transform value to 0 to 200
-        #thus 100 means straight, and above 100 is to left
-        PD = 100 + 100*PD
-        if PD < 0:
-            PD = 0
-        elif PD > 251:
-            PD = 251
+        print("Value passed to Arduino")
+        print(100 + 200*PD) #thus 100 means straight, and above 100 is to left
+        PD = 100 + 200*PD
 
+    if PD < 0:
+        PD = 0
+    elif PD > 255:
+        PD = 251
 
     #if Arduino detect that it caught the cell
-    if ArduinoSerial.in_waiting:
-        if ArduinoSerial.readline().decode('utf-8') == 0:
-            cellsChecked += 1
-            timeLastCell = time.time()
+    #if ArduinoSerial.in_waiting:
+     #   if ArduinoSerial.readline().decode('utf-8') == 0:
+    #        cellsChecked += 1
+    #        timeLastCell = time.time()
 
     #or if has been looking for ages, pass to next
     if (time.time() - timeLastCell) > 30:
         timeLastCell = time.time()
-        if cellsChecked < len(coordMines)-1:
-            cellsChecked += 1
+        cellsChecked += 1
 
     #returning back to safe zone. Check whether arrived
     if cellsChecked == (len(coordMines)-2) and goldC[0] < 20 and abs(goldC[1] -270) < 20:
         PD = 253
     #returning back to start zone. Check whether arrived
-    if cellsChecked == (len(coordMines)-1) and abs(goldC[0]-15) < 15 and abs(goldC[1] -75) < 30:
+    if cellsChecked == (len(coordMines)-1) and abs(goldC[0]-30) < 30 and abs(goldC[1] -60) < 30:
         PD = 252
-
-    #for development purposes be able to stop it remotely
-    if keyboard.is_pressed('p'):
         PD = 252
-
-    print("Value passed to Arduino")
-    print(PD) 
-    ArduinoSerial.write(round(PD).to_bytes(1, 'big'))
-
-    time.sleep(0.1)
+    #ArduinoSerial.write(round(PD).to_bytes(1, 'big'))
+    time.sleep(0.2)
 
     deltaT = time.time()-timeOld
     timeOld = time.time()
@@ -197,7 +185,7 @@ while(1):
 
     cv2.imshow('frame',frame)
     # Press Q on keyboard to  exit
-    if cv2.waitKey(25) & 0xFF == ord('q') or PD == 252:
+    if cv2.waitKey(25) & 0xFF == ord('q'):
       break
 
 cap.release()
