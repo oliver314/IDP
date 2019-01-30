@@ -1,7 +1,7 @@
 import serial  # Serial imported for Serial communication
 import time  # Required to use delay functions
 
-class TransferProtocol(object):
+class Transfer(object):
     def __init__(self,port='com5'):
         # Establishes connection with Arduino
         print('Establishing connection with Arduino')
@@ -10,16 +10,24 @@ class TransferProtocol(object):
         print('Connected successfully')
 
     def read(self):
-        # Returns most recent value in buffer
+        # Returns most recent byte in buffer
         print('Checking buffer')
         val = None
-        while self.AS.in_waiting():
+        while self.AS.in_waiting:
             val = self.AS.read()
         return val
 
+    def readline(self):
+        # Returns most recent line in buffer
+        print('Checking buffer')
+        line = None
+        while self.AS.in_waiting:
+            line = self.AS.readline()
+        return line.rstrip()
+
     def send(self,val):
-        if val.is_int():
-            self.write(val.to_bytes(1, 'big'))
+        if type(val) is int:
+            self.AS.write(val.to_bytes(1, 'big'))
         else:
             print('Value must be an integer')
 

@@ -1,10 +1,8 @@
-import serial  # Serial imported for Serial communication
+from TransferProtocol import Transfer
 import time  # Required to use delay functions
 
-ArduinoSerial = serial.Serial('com5', 9600)  # Create Serial port object called arduinoSerialData
-time.sleep(2)  # wait for 2 secounds for the communication to get established
-
-print('Listening...')
+tp = Transfer('com5')
 
 while True:
-    print((ArduinoSerial.read().decode('utf-8')))
+    tp.send(int(input()))
+    time.sleep(0.5)
