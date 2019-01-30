@@ -10,11 +10,22 @@ ArduinoSerial = serial.Serial('com3', 9600)  # Create Serial port object called 
 print("Capture started")
 time.sleep(2)  # wait for 2 secounds for the communication to get established
 
+# define range of green color in HSV
+#use gimp for color code: 160, 20, 73 for green robot
+#212,81,66 for blue robot
+#area +- 1100
+#208,66,87 for cells or 208,63,88
+#area +- 70 - 260
+#172,80,60 for save zone
+#values light on(light off is more accurate, values in ColorDetectionPicture.py)
+
 #values gold green T
 lower_greenR = np.array([70/2,0*255/100,50*255/100])
 upper_greenR = np.array([135/2,27*255/100,92*255/100])
 lower_goldR = np.array([320/2,10*255/100,70*255/100])
 upper_goldR = np.array([360/2,60*255/100,110*255/100])
+#lower_goldR = np.array([38/2,30*255/100,94*255/100])
+#upper_goldR = np.array([57/2,68*255/100,102*255/100])
 lower_cells = np.array([195/2,30*255/100,65*255/100])
 upper_cells = np.array([215/2,80*255/100,95*255/100])
 
@@ -25,6 +36,8 @@ def detectColor(frame, lower, upper, minArea):
     # Threshold the HSV image to get only green colors
     mask = cv2.inRange(hsv, lower, upper)
 
+    #cv2.imshow('frame',mask)
+    #cv2.waitKey(0)
     kernel = np.ones((5,5),'int')
     dilated = cv2.dilate(mask,kernel)
     # Bitwise-AND mask and original image
@@ -44,20 +57,9 @@ def detectColor(frame, lower, upper, minArea):
             coord.append((x,y,w,h))
     return coord
 
-def getClosestCell(goldC , rigthLimit):
-    closest = 490000
-    minMin = [0,0]
-    for mine in coordMines:
-        if (mine[0] > 50) and (mine[0] < rightLimit):
-            if((mine[0]-goldC[0])**2 + (mine[1] - goldC[1])**2):
-                minMin = mine
-                closest = (mine[0]-goldC[0])**2 + (mine[1] - goldC[1])**2
-
-    return minMin
-
 firstTime = True
 coordMines=[]
-#cellsChecked = 0
+cellsChecked = 0
 errorAngle = 0
 errorAngleOld = 0
 errorAngleOldOld = 0
@@ -67,13 +69,12 @@ kd = 0.0001
 kp = 0.01
 timeLastCell = time.time()
 count = 0
-firstGo = True
 
 #start on space
 while not keyboard.is_pressed(' '):
     pass
 
-while(cap.isOpened()):
+while(1):
     # Take each frame
     _, frame = cap.read()
     print()
@@ -82,10 +83,16 @@ while(cap.isOpened()):
     #frameCopy = frame.copy()
 
     if firstTime:
+        #crop image to dangerous black zone (only needed if too imprecise)
+        #get coordinates of cells
+        #crop_img = img[y:y+h, x:x+w]
+        #frame2 = frameCopy[20:1060,740:1400];
+        #cropping needed because of choice of blue rectangle on robot not anymore #[0:480,100:560]
         rectMines = detectColor(frame, lower_cells, upper_cells,5);
         for rect in rectMines:
             coordMines.append((rect[0]+rect[2]/2,rect[1] + rect[3]/2))
-        #starts at lowest y and goes up, ie from top to bottom if image 
+
+        #starts at lowest y and goes up
         coordMines = sorted(coordMines,key=lambda x:(x[1],x[0]))
 
         print("Coordinates of cells")
@@ -111,6 +118,8 @@ while(cap.isOpened()):
         continue
     goldF = goldF[0]
     greenF = greenF[0]
+    #print(goldF)
+    #print(greenF)
     goldC = (goldF[0]+goldF[2]/2,goldF[1] + goldF[3]/2)
     greenC = (greenF[0]+greenF[2]/2,greenF[1] + greenF[3]/2)
 
@@ -120,15 +129,7 @@ while(cap.isOpened()):
     #print(alpha)
     #print(greenC)
 
-    #targetMine = coordMines[cellsChecked]
-    if firstGo:
-        rightLimit = 530
-    else:
-        rightLimit = 560
-    if(len(targetMine)<3):
-        targetMine = coordMines[0]
-    else:
-        targetMine = coordMines[getClosestCell(goldC, rightLimit)]
+    targetMine = coordMines[cellsChecked]
 
     cv2.circle(frame,(round(targetMine[0]),round(targetMine[1])), 10, (0,0,255), -1)
     alphaRef = math.degrees(math.atan2(-targetMine[1]+greenC[1],targetMine[0]-greenC[0]))
@@ -155,45 +156,31 @@ while(cap.isOpened()):
         #transform value to 0 to 200
         #thus 100 means straight, and above 100 is to left
         PD = 100 + 120*PD
-        #check in range of unused values
-        PD = max(PD,0)
-        PD = min(PD,249)
+        if PD < 0:
+            PD = 0
+        elif PD > 251:
+            PD = 251
 
 
     #if Arduino detect that it caught the cell
     if ArduinoSerial.in_waiting:
         if ArduinoSerial.readline().decode('utf-8') == 0:
-            if len(coordMines)<3:
-                coordMines.remove(coordMines[0])
-            else:
-                coordMines.remove(getClosestCell(goldC,560))
-            #cellsChecked += 1
+            cellsChecked += 1
             timeLastCell = time.time()
 
     #or if has been looking for ages, pass to next
     if (time.time() - timeLastCell) > 30:
-        if len(coordMines)<3:
-            coordMines.remove(coordMines[0])
-        else:
-            coordMines.remove(getClosestCell(goldC,560))
         timeLastCell = time.time()
-        #if cellsChecked < len(coordMines)-1:
-        #    cellsChecked += 1
+        if cellsChecked < len(coordMines)-1:
+            cellsChecked += 1
 
     #returning back to safe zone. Check whether arrived
-    if len(coordMines)==2 and goldC[0] < 20 and abs(goldC[1] -270) < 20:
+    if cellsChecked == (len(coordMines)-2) and goldC[0] < 20 and abs(goldC[1] -270) < 20:
         PD = 253
     #returning back to start zone. Check whether arrived
-    if len(coordMines) == 1 and abs(goldC[0]-15) < 15 and abs(goldC[1] -75) < 30:
+    if cellsChecked == (len(coordMines)-1) and abs(goldC[0]-15) < 15 and abs(goldC[1] -75) < 30:
         PD = 252
 
-    #check if stuck to wall
-    #251 go back and go right, 250 go left after
-    if abs(alpha % 180 < 5) and (greenC[0] % 540 < 20):
-        if (targetMine[1] > greenC[1]) ^ (greenC[0] > 540):#XOR
-            PD = 251
-        else:
-            PD = 250
     #for development purposes be able to stop it remotely
     if keyboard.is_pressed('p'):
         PD = 252

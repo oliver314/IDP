@@ -15,15 +15,18 @@ int sensorPin = A9;
 //int sensorPinHall = A0;
 int sensorValue = 0;
 Servo gate;
+const int crit = 100;
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
   gate.attach(10); 
+  close_gate();
   AFMS.begin();  // create with the default frequency 1.6KHz
   //AFMS.begin(1000);  // OR with a different frequency, say 1KHz
   
   // Set the speed to start, from 0 (off) to 255 (max speed)
   driveForward(150,150);
+  halt();
   // turn on motor
   M3->run(RELEASE);
   M4->run(RELEASE);
@@ -31,7 +34,6 @@ void setup() {
 
 void loop() {
   int val;
-  const int crit = 100;
 
   if(Serial.available() > 0){
     delay(100);
@@ -40,8 +42,8 @@ void loop() {
   }
 
   sensorValue = analogRead(sensorPin);
-  Serial.println(sensorValue);
-  if(sensorValue>500){
+  //Serial.println(sensorValue);
+  if(sensorValue>300){
     //cell caught
     cellRoutine();
   }
@@ -49,17 +51,18 @@ void loop() {
 
 void cellRoutine(){
   halt();
+  delay(500);
   //true if dangerous
   if(hallSensorTest()){
     driveForward(150,150);
-    delay(500);
+    delay(1000);
   }else{
-    openGate();
+    open_gate();
     driveForward(150,150);
     delay(500);
-    closeGate();
+    close_gate();
   }
-  Serial.write(b'0');
+  Serial.write(0);
 }
 
 boolean hallSensorTest(){
@@ -73,11 +76,17 @@ boolean hallSensorTest(){
   */
 }
 
-void driveForward(int speedR, int speedL){
-    M4->setSpeed(speedR);
-    M3->setSpeed(speedL);
+void driveBackward(int speedR, int speedL){
+    M4->setSpeed(speedL);
+    M3->setSpeed(speedR);
     M3->run(FORWARD);
     M4->run(FORWARD);
+}
+void driveForward(int speedR, int speedL){
+      M3->run(BACKWARD);
+      M4->run(BACKWARD);
+      M4->setSpeed(speedL);
+      M3->setSpeed(speedR);
 }
 
 void drive(int val){
@@ -103,15 +112,34 @@ void drive(int val){
       M4->setSpeed(crit);
       M3->setSpeed(crit);
     }
-    //arrived at green zone
+    //arrived at green zone => mechanism to release cells
     else if (val == 253){
+      driveBackward(0,255);
+      delay(5250);
       open_gate();
-      M3->run(BACKWARD);
-      M4->run(BACKWARD);
-      M4->setSpeed(crit);
-      M3->setSpeed(crit);
+      driveBackward(150,150);
       delay(1000);
+      close_gate();
+      driveForward(150,150);
+      delay(1000);
+      gate.write(180);
+      delay(15);
+      close_gate();
+      driveBackward(150,150);
+      delay(5000);
       halt();
+    }
+    //go back and go right
+    else if(val == 251){
+      driveBackward(255,0);
+      delay(5250);
+      
+    }
+    //go back and go left
+    else if(val == 250){
+      driveBackward(0,255);
+      delay(5250);
+      
     }
     else if(val == 252){
       halt();
@@ -122,6 +150,7 @@ void drive(int val){
     } 
 }
 
+
 void open_gate(){
   // Code to open gate
   gate.write(120);
@@ -130,7 +159,7 @@ void open_gate(){
 
 void close_gate(){
   // Code to close gate
-  gate.write(120);
+  gate.write(40);
   delay(15);
 }
 
