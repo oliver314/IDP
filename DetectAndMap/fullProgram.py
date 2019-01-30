@@ -155,7 +155,7 @@ while(1):
         PD = kd * deriv + kp * errorAngle 
         #transform value to 0 to 200
         #thus 100 means straight, and above 100 is to left
-        PD = 100 + 100*PD
+        PD = 100 + 120*PD
         if PD < 0:
             PD = 0
         elif PD > 251:
