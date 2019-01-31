@@ -36,6 +36,8 @@ while(1):
     frame = frame[0:480, 0:560]
     cv2.circle(frame,(0,275), 10, (0,0,255), -1)
     cv2.circle(frame,(30,60), 10, (0,0,255), -1)
+    cv2.circle(frame,(20,300), 7, (0,0,255), -1)
+    cv2.circle(frame,(530,300), 7, (0,0,255), -1)
     
 
     cv2.imshow('frame',frame)

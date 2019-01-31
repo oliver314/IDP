@@ -122,13 +122,13 @@ while(cap.isOpened()):
 
     #targetMine = coordMines[cellsChecked]
     if firstGo:
-        rightLimit = 530
+        rightLimit = 520
     else:
         rightLimit = 560
-    if(len(targetMine)<3):
+    if(len(coordMines)<3):
         targetMine = coordMines[0]
     else:
-        targetMine = coordMines[getClosestCell(goldC, rightLimit)]
+        targetMine = getClosestCell(goldC, rightLimit)
 
     cv2.circle(frame,(round(targetMine[0]),round(targetMine[1])), 10, (0,0,255), -1)
     alphaRef = math.degrees(math.atan2(-targetMine[1]+greenC[1],targetMine[0]-greenC[0]))
@@ -139,13 +139,16 @@ while(cap.isOpened()):
     print("ErrorAngle")
     print(errorAngle)
 
+
+
+
     PD = 0
     #makes no sense to try and correct course while driving
-    if errorAngle > 30:
+    if errorAngle > 20:
         print("Turn left")
         PD = 254
         #ArduinoSerial.write((254).to_bytes(1, 'big'))
-    elif errorAngle < -30:
+    elif errorAngle < -20:
         print("Turn right")
         PD = 255
         #ArduinoSerial.write((255).to_bytes(1, 'big'))
@@ -169,7 +172,6 @@ while(cap.isOpened()):
                 coordMines.remove(getClosestCell(goldC,560))
             #cellsChecked += 1
             timeLastCell = time.time()
-
     #or if has been looking for ages, pass to next
     if (time.time() - timeLastCell) > 30:
         if len(coordMines)<3:
@@ -180,20 +182,20 @@ while(cap.isOpened()):
         #if cellsChecked < len(coordMines)-1:
         #    cellsChecked += 1
 
+
+    #check if stuck to wall
+    #251 go back and go right, 250 go left after
+    if abs(alpha % 180 < 5) and (goldC[0] % 520 < 20):#530 means stuck, 10 also
+        if (targetMine[1] > greenC[1]) ^ (goldC[0] > 530):#XOR
+            PD = 251
+        else:
+            PD = 250
     #returning back to safe zone. Check whether arrived
     if len(coordMines)==2 and goldC[0] < 20 and abs(goldC[1] -270) < 20:
         PD = 253
     #returning back to start zone. Check whether arrived
     if len(coordMines) == 1 and abs(goldC[0]-15) < 15 and abs(goldC[1] -75) < 30:
         PD = 252
-
-    #check if stuck to wall
-    #251 go back and go right, 250 go left after
-    if abs(alpha % 180 < 5) and (greenC[0] % 540 < 20):
-        if (targetMine[1] > greenC[1]) ^ (greenC[0] > 540):#XOR
-            PD = 251
-        else:
-            PD = 250
     #for development purposes be able to stop it remotely
     if keyboard.is_pressed('p'):
         PD = 252

@@ -175,7 +175,6 @@ while(1):
     #returning back to start zone. Check whether arrived
     if cellsChecked == (len(coordMines)-1) and abs(goldC[0]-30) < 30 and abs(goldC[1] -60) < 30:
         PD = 252
-        PD = 252
     #ArduinoSerial.write(round(PD).to_bytes(1, 'big'))
     time.sleep(0.2)
 
