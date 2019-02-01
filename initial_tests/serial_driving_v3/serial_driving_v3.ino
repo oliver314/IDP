@@ -26,12 +26,12 @@ void setup() {
   close_gate();
   AFMS.begin();                             // Create with the default frequency 1.6KHz
   
-  /* Set the speed to start, from 0 (off) to 255 (max speed)
-  driveForward(150,150);
+  /* Set the speed to start, from 0 (off) to 255 (max speed)*/
+  drive(150,150);
   halt();
   // turn on motor
   rightMotor->run(RELEASE);
-  leftMotor->run(RELEASE); */
+  leftMotor->run(RELEASE);
 }
 
 void loop() {
@@ -57,7 +57,7 @@ void cellRoutine(){
   //true if dangerous
   if(hallSensorTest()){
     drive(150,150);
-    delay(1000);
+    delay(2000);
   }
   else{
     open_gate();
@@ -65,6 +65,7 @@ void cellRoutine(){
     delay(500);
     close_gate();
   }
+  halt();
   Serial.write(0);
 }
 
@@ -79,16 +80,16 @@ boolean hallSensorTest(){
   */
 }
 
-void drive(int speedR, int speedL){
-    rightMotor->run(FORWARD);
-    leftMotor->run(FORWARD);
+void drive(int speedL, int speedR){
+    rightMotor->run(BACKWARD);
+    leftMotor->run(BACKWARD);
     if (speedR < 0){
       speedR = abs(speedR);
-      rightMotor->run(BACKWARD);
+      rightMotor->run(FORWARD);
     }
     if (speedL < 0){
       speedL = abs(speedL);
-      leftMotor->run(BACKWARD);
+      leftMotor->run(FORWARD);
     }
     leftMotor->setSpeed(speedL);
     rightMotor->setSpeed(speedR);
@@ -158,13 +159,13 @@ void driveLoop(int val){
 void open_gate(){
   // Code to open gate
   gate.write(120);
-  delay(15);
+  delay(500);
 }
 
 void close_gate(){
   // Code to close gate
   gate.write(40);
-  delay(15);
+  delay(500);
 }
 
 void halt(){

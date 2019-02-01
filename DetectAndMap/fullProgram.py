@@ -6,7 +6,7 @@ import time  # Required to use delay functions
 import keyboard
 print("Imports done")
 cap = cv2.VideoCapture(1)
-ArduinoSerial = serial.Serial('com3', 9600)  # Create Serial port object called arduinoSerialData
+ArduinoSerial = serial.Serial('com7', 9600)  # Create Serial port object called arduinoSerialData
 print("Capture started")
 time.sleep(2)  # wait for 2 secounds for the communication to get established
 
@@ -49,7 +49,7 @@ def getClosestCell(goldC , rigthLimit):
     minMin = [0,0]
     for mine in coordMines:
         if (mine[0] > 50) and (mine[0] < rightLimit):
-            if((mine[0]-goldC[0])**2 + (mine[1] - goldC[1])**2):
+            if((mine[0]-goldC[0])**2 + (mine[1] - goldC[1])**2) < closest:
                 minMin = mine
                 closest = (mine[0]-goldC[0])**2 + (mine[1] - goldC[1])**2
 
