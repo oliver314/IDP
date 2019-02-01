@@ -109,10 +109,6 @@ void driveLoop(int val){
 
     else if (val == 254){  
       // Sharp turn left
-      leftMotor->run(FORWARD);
-      rightMotor->run(BACKWARD);
-      leftMotor->setSpeed(crit);
-      rightMotor->setSpeed(crit);
       drive(-crit,crit);
     }
     
