@@ -4,9 +4,11 @@ import math
 import serial  # Serial imported for Serial communication
 import time  # Required to use delay functions
 import keyboard
+from TransferProtocol import Transfer
 print("Imports done")
+
 cap = cv2.VideoCapture(1)
-tp = serial.Serial('com7', 9600)  # Create Serial port object called arduinoSerialData
+tp = Transfer('com7')  # Create transmission protocol object
 print("Capture started")
 time.sleep(2)  # wait for 2 secounds for the communication to get established
 
@@ -164,14 +166,14 @@ while(cap.isOpened()):
 
 
     #if Arduino detect that it caught the cell
-    if ArduinoSerial.in_waiting:
-        if ArduinoSerial.readline().decode('utf-8') == 0:
-            if len(coordMines)<3:
-                coordMines.remove(coordMines[0])
-            else:
-                coordMines.remove(getClosestCell(goldC,560))
+
+    if tp.read() == 0:
+        if len(coordMines)<3:
+            coordMines.remove(coordMines[0])
+        else:
+            coordMines.remove(getClosestCell(goldC,560))
             #cellsChecked += 1
-            timeLastCell = time.time()
+        timeLastCell = time.time()
     #or if has been looking for ages, pass to next
     if (time.time() - timeLastCell) > 30:
         if len(coordMines)<3:
@@ -202,7 +204,7 @@ while(cap.isOpened()):
 
     print("Value passed to Arduino")
     print(PD) 
-    ArduinoSerial.write(round(PD).to_bytes(1, 'big'))
+    tp.send(int(round(PD)))
 
     time.sleep(0.1)
 
