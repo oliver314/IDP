@@ -62,7 +62,7 @@ void cellRoutine(){
   else{
     open_gate();
     drive(150,150);
-    delay(500);
+    delay(1500);
     close_gate();
   }
   halt();
@@ -147,7 +147,7 @@ void driveLoop(int val){
     }
     
     else{
-      drive(val, 2*crit-val);
+      drive(2*crit-val, val);
     } 
 }
 
