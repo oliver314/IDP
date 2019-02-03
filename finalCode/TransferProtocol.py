@@ -11,15 +11,13 @@ class Transfer(object):
 
     def read(self):
         # Returns most recent byte in buffer
-        #print('Checking buffer')
         val = None
         while self.AS.in_waiting:
             val = self.AS.read()
-        return val
+        return int.from_bytes(val, byteorder='big')
 
     def readline(self):
         # Returns most recent line in buffer
-        #print('Checking buffer')
         line = None
         while self.AS.in_waiting:
             line = self.AS.readline()
@@ -27,7 +25,7 @@ class Transfer(object):
 
     def send(self,val):
         if type(val) is int:
-            self.AS.write(val.to_bytes(1, 'big'))
+            self.AS.write(val.to_bytes(1, byteorder='big'))
         else:
             print('Value must be an integer')
 
