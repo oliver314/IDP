@@ -16,9 +16,9 @@ uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
 startTime = time.time()
 
 if __name__ == "__main__":
-    img = Imaging(lg, ug, lp, up, lc, uc)
-    tp = Transfer('com5')  # Create transfer protocol object
-    ctrl = Controller(img, tp)
+    img = Imaging(lg, ug, lp, up, lc, uc) # Initialise imaging class
+    tp = Transfer('com5')  # Initialise transfer protocol class
+    ctrl = Controller(img, tp) # Initialise controller class
     print("Completed initialisation, press space to start")
 
     # start on space
