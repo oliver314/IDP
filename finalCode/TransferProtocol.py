@@ -1,8 +1,9 @@
 import serial  # Serial imported for Serial communication
 import time  # Required to use delay functions
 
+
 class Transfer(object):
-    def __init__(self,port='com5'):
+    def __init__(self, port='com5'):
         # Establishes connection with Arduino
         print('Establishing connection with Arduino')
         self.AS = serial.Serial(port, 9600)  # Create Serial port object called arduinoSerialData
@@ -23,9 +24,8 @@ class Transfer(object):
             line = self.AS.readline()
         return line.rstrip()
 
-    def send(self,val):
+    def send(self, val):
         if type(val) is int:
             self.AS.write(val.to_bytes(1, byteorder='big'))
         else:
             print('Value must be an integer')
-

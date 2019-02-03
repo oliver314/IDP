@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import math
 
+
 class Imaging(object):
     def __init__(self, lg, ug, lp, up, lc, uc):
         # Initialising colour boundaries
@@ -35,13 +36,6 @@ class Imaging(object):
         print("Coordinates of cells")
         print(self.coordMines)
 
-        ''' COME BACK TO THIS
-        if (len(coordMines) == 0):
-            continue
-        coordMines.append((0, 270))
-        coordMines.append((15, 75))
-        '''
-
     def capture(self):
         _, frame = self.cap.read()
         frame = frame[0:480, 0:560]
@@ -65,7 +59,6 @@ class Imaging(object):
         for cnt in contours:
             # Contour area is taken
             area = cv2.contourArea(cnt)
-
             if area > minArea:
                 # draw rectangle around found zones
                 (x, y, w, h) = cv2.boundingRect(cnt)
@@ -116,3 +109,10 @@ class Imaging(object):
         purpleC, greenC = robotCoord
         cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
         return math.degrees(math.atan2(-targetCoord[1] + greenC[1], targetCoord[0] - greenC[0]))
+
+    def showFrame(self, frame):
+        cv2.imshow('frame', frame)
+
+    def shutdown(self):
+        self.cap.release()
+        cv2.destroyAllWindows()
