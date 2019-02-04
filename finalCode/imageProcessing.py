@@ -15,6 +15,7 @@ class Imaging(object):
         self.uc = uc
 
         self.coordMines = []
+        self.count = 0
 
         # Initialise camera
         print('Initialising camera')
@@ -26,7 +27,7 @@ class Imaging(object):
     def updateArena(self):
         # Determine coordinates of cells
         frame = self.capture()
-        rectMines = self.detectColor(frame, minArea=5);
+        rectMines = self.detectColor(frame, 'c', minArea=5);
         for rect in rectMines:
             self.coordMines.append((rect[0] + rect[2] / 2, rect[1] + rect[3] / 2))
 
@@ -41,12 +42,19 @@ class Imaging(object):
         frame = frame[0:480, 0:560]
         return frame
 
-    def detectColor(self, frame, minArea=120):
+    def detectColor(self, frame, key, minArea=120):
         # Convert BGR to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        # Threshold the HSV image to get only green colors
-        mask = cv2.inRange(hsv, self.lc, self.uc)
+        if key == 'c':
+            # Threshold the HSV image to get only green colors
+            mask = cv2.inRange(hsv, self.lc, self.uc)
+        elif key == 'g':
+            # Threshold the HSV image to get only green colors
+            mask = cv2.inRange(hsv, self.lg, self.ug)
+        elif key == 'p':
+            # Threshold the HSV image to get only green colors
+            mask = cv2.inRange(hsv, self.lp, self.up)
 
         kernel = np.ones((5, 5), 'int')
         dilated = cv2.dilate(mask, kernel)
@@ -69,27 +77,29 @@ class Imaging(object):
 
     def getClosestCell(self, robotCoord, rightLimit=560):
         closest = 490000
-        minMin = [0, 0]
+        minMine = [0, 0]
         purpleC = robotCoord[0]
         for mine in self.coordMines:
             if (mine[0] > 50) and (mine[0] < rightLimit):
                 dist = (mine[0] - purpleC[0]) ** 2 + (mine[1] - purpleC[1]) ** 2
                 if dist < closest:
-                    minMin = mine
+                    minMine = mine
                     closest = dist
 
-        return minMin
+        return minMine
 
     def getCoordinates(self, frame):
-        purpleF = self.detectColor(frame)
-        greenF = self.detectColor(frame)
+        purpleF = self.detectColor(frame,'p')
+        greenF = self.detectColor(frame,'g')
 
         if len(purpleF) == 0 or len(greenF) == 0:
-            print(str(len(purpleF)) + "  " + str(len(greenF)))
-            ''' Save photo if several frames fail
-            count % 5 == 0):
-            cv2.imwrite("frame" + str(count/5)+ ".png", frame)
-            count += 1 
+            # print(str(len(purpleF)) + "  " + str(len(greenF)))
+            # Save photo if several frames fail
+            '''
+            if (self.count % 5 == 0):
+                print('here')
+                cv2.imwrite("frame" + str(self.count/5)+ ".png", frame)
+            self.count += 1
             '''
             return None
 
@@ -112,6 +122,9 @@ class Imaging(object):
 
     def showFrame(self, frame):
         cv2.imshow('frame', frame)
+
+    def removeMine(self, mine):
+        self.coordMines.remove(mine)
 
     def shutdown(self):
         self.cap.release()
