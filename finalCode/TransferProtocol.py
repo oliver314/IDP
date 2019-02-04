@@ -15,7 +15,8 @@ class Transfer(object):
         val = None
         while self.AS.in_waiting:
             val = self.AS.read()
-        return int.from_bytes(val, byteorder='big')
+            val = int.from_bytes(val, byteorder='big')
+        return val
 
     def readline(self):
         # Returns most recent line in buffer

@@ -1,5 +1,6 @@
 import time
 import keyboard
+import math
 
 class Controller(object):
     def __init__(self, img, tp):
@@ -18,13 +19,23 @@ class Controller(object):
         frame = self.img.capture()
         self.img.showFrame(frame)
         self.robotCoord = self.img.getCoordinates(frame)
+        while self.robotCoord is None:
+            frame = self.img.capture()
+            self.img.showFrame(frame)
+            self.robotCoord = self.img.getCoordinates(frame)
         controlSignal = self.controlLoop(frame)
         self.tp.send(controlSignal)
         time.sleep(0.1)
 
+        ''' EXPERIMENTAL
+        if self.atTargetCoord():
+            self.tp.send(100)
+            time.sleep(1)
+        '''
+
         # for development purposes be able to stop it remotely
         if keyboard.is_pressed('p'):
-            PD = 252
+            self.tp.send(252)
 
     def controlLoop(self, frame):
         kd = 0.0001
@@ -39,10 +50,10 @@ class Controller(object):
         # PD controller
         PD = 0
         # makes no sense to try and correct course while driving
-        if errorAngles[-1] > 20:
+        if errorAngles[-1] > 10:
             # print("Turn left")
             PD = 254
-        elif errorAngles[-1] < -20:
+        elif errorAngles[-1] < -10:
             # print("Turn right")
             PD = 255
         else:
@@ -50,7 +61,7 @@ class Controller(object):
             PD = kd * deriv + kp * errorAngles[-1]
             # transform value to 0 to 200
             # thus 100 means straight, and above 100 is to left
-            PD = 100 + 120 * PD
+            PD = 100 + 130 * PD
             # check in range of unused values
             PD = max(PD, 0)
             PD = min(PD, 249)
@@ -70,16 +81,23 @@ class Controller(object):
         # Check for response from robot
         if self.tp.read() == 0:
             print('Collected fuel cell')
-            self.img.updateArena()
+            #self.img.updateArena()
             self.timeLastCell = time.time()
             self.mineCount += 1
+            self.img.removeMine(self.targetCoord)
+            return True
+
+        elif self.tp.read() == 1:
+            self.timeLastCell = time.time()
+            self.img.removeMine(self.targetCoord)
             return True
 
         # or if has been looking for ages, pass to next
         elif (time.time() - self.timeLastCell) > 30:
             print('Failed to collect fuel cell in time')
-            self.img.updateArena()
+            #self.img.updateArena()
             self.timeLastCell = time.time()
+            self.img.removeMine(self.targetCoord)
             return True
 
         else:
@@ -88,7 +106,7 @@ class Controller(object):
     def checkWall(self):
         # check if stuck to wall
         # 251 go back and go right, 250 go left after
-        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 520 < 20):  # 530 means stuck, 10 also
+        if abs(self.orientation % 180 < 5 ) and (self.robotCoord[0][0] % 520 < 20):  # 530 means stuck, 10 also
             if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 530):  # XOR
                 return 251
             else:
@@ -99,8 +117,7 @@ class Controller(object):
     def atTargetCoord(self):
         error = 20  # acceptable error margin
         # returning back to safe zone. Check whether arrived
-        if abs(self.robotCoord[0][0] - self.targetCoord[0]) < error and abs(
-                        self.robotCoord[0][1] - self.targetCoord[1]) < error:
+        if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0])**2 + (self.robotCoord[0][1] - self.targetCoord[1])**2) < error:
             return True
         else:
             return False

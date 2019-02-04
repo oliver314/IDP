@@ -13,31 +13,37 @@ lp = np.array([320 / 2, 10 * 255 / 100, 70 * 255 / 100])
 up = np.array([360 / 2, 60 * 255 / 100, 110 * 255 / 100])
 lc = np.array([195 / 2, 30 * 255 / 100, 65 * 255 / 100])
 uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
-startTime = time.time()
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc) # Initialise imaging class
     tp = Transfer('com5')  # Initialise transfer protocol class
-    ctrl = Controller(img, tp) # Initialise controller class
     print("Completed initialisation, press space to start")
 
     # start on space
     while not keyboard.is_pressed(' '):
         pass
 
-    while img.cap.isOpened():
+    ctrl = Controller(img, tp)  # Initialise controller class
+    startTime = time.time()
+    while img.cap.isOpened(): # CLEAN UP
+        #tp.send(100)
         frame = img.capture()
         img.showFrame(frame)
         robotCoord = img.getCoordinates(frame)
+        while robotCoord is None:
+            frame = img.capture()
+            img.showFrame(frame)
+            robotCoord = img.getCoordinates(frame)
 
         if time.time() - startTime > 270:
             targetCoord = (15, 75)
 
-        elif ctrl.mineCount > 3:
+        elif ctrl.mineCount > 2:
             targetCoord = (0, 270)
 
         else:
             targetCoord = img.getClosestCell(robotCoord)
+            ctrl.driveLoop(targetCoord)
             while not ctrl.mineCaptured():  # May be worth modifying this such that the robot drives forward when within a certain range
                 ctrl.driveLoop(targetCoord)
             continue

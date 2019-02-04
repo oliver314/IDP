@@ -14,7 +14,7 @@ Servo gate;
 
 // Initialise sensor variables
 int IRPin = A9;
-int HallPin = A0;
+int HallPin = A8;
 int IRValue = 0;
 int HallValue = 0;
 
@@ -58,19 +58,23 @@ void cellRoutine(){
   if(hallSensorTest()){
     drive(150,150);
     delay(2000);
+    Serial.write(1);
   }
   else{
     open_gate();
     drive(150,150);
     delay(1500);
     close_gate();
+    Serial.write(0);
   }
   halt();
-  Serial.write(0);
+  
 }
 
 boolean hallSensorTest(){
-  return false;
+  int value;
+  value = analogRead(HallPin);
+  return (value<270) ||  (value > 340);
   /*
   int value = 0;
   for(int i = 0; i < 5; i++){
@@ -96,13 +100,7 @@ void drive(int speedL, int speedR){
 }
 
 void driveLoop(int val){
-    
-    if (val == crit){
-      // Run straight if speed = crit
-      drive(crit,crit);
-    }
-
-    else if (val == 255){
+    if (val == 255){
       // Sharp turn right
       drive(crit,-crit);
     }
@@ -147,7 +145,7 @@ void driveLoop(int val){
     }
     
     else{
-      drive(2*crit-val, val);
+      drive(2*crit-val+50, val+50);
     } 
 }
 
