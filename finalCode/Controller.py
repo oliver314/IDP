@@ -3,27 +3,23 @@ import keyboard
 import math
 
 class Controller(object):
-    def __init__(self, img, tp):
+    def __init__(self, img, tp, startZone, safeZone):
         # Initialising variables
         self.img = img
         self.tp = tp
         self.errorAngles = [0, 0]
         self.timeOld = 0
         self.deltaT = 1
-        self.mineCount = 0
+        self.mineCollectedCount = 0
         self.timeLastCell = time.time()
+        self.startZone = startZone
+        self.safeZone = safeZone
 
-    def driveLoop(self, targetCoord):
+    def driveLoop(self, robotCoord, targetCoord):
         # Main driving loop
         self.targetCoord = targetCoord
-        frame = self.img.capture()
-        self.img.showFrame(frame)
-        self.robotCoord = self.img.getCoordinates(frame)
-        while self.robotCoord is None:
-            frame = self.img.capture()
-            self.img.showFrame(frame)
-            self.robotCoord = self.img.getCoordinates(frame)
-        controlSignal = self.controlLoop(frame)
+        self.robotCoord = robotCoord
+        controlSignal = self.controlLoop()
         self.tp.send(controlSignal)
         time.sleep(0.1)
 
@@ -33,17 +29,13 @@ class Controller(object):
             time.sleep(1)
         '''
 
-        # for development purposes be able to stop it remotely
-        if keyboard.is_pressed('p'):
-            self.tp.send(252)
-
-    def controlLoop(self, frame):
+    def controlLoop(self):
         kd = 0.0001
         kp = 0.01
 
         # Determining error angle
         self.orientation = self.img.getOrientation(self.robotCoord)
-        orientationRef = self.img.getReferenceAngle(frame, self.robotCoord, self.targetCoord)
+        orientationRef = self.img.getReferenceAngle(self.robotCoord, self.targetCoord)
         self.errorAngles.append(orientationRef - self.orientation)
         errorAngles = self.errorAngles[-3:]
 
@@ -72,42 +64,38 @@ class Controller(object):
 
         # Check if robot has collided with arena wall
         wallCheck = self.checkWall()
-        if wallCheck != None:
+        if wallCheck is not None:
             PD = wallCheck
 
         return int(round(PD))
 
     def mineCaptured(self):
         # Check for response from robot
-        if self.tp.read() == 0:
-            print('Collected fuel cell')
-            #self.img.updateArena()
-            self.timeLastCell = time.time()
-            self.mineCount += 1
-            self.img.removeMine(self.targetCoord)
-            return True
-
-        elif self.tp.read() == 1:
-            self.timeLastCell = time.time()
-            self.img.removeMine(self.targetCoord)
-            return True
-
-        # or if has been looking for ages, pass to next
-        elif (time.time() - self.timeLastCell) > 30:
-            print('Failed to collect fuel cell in time')
-            #self.img.updateArena()
-            self.timeLastCell = time.time()
-            self.img.removeMine(self.targetCoord)
-            return True
-
+        val = self.tp.read()
+        if val is None:
+        	return False
         else:
-            return False
+            self.img.removeMine(self.targetCoord)
+
+        	if val == 0:
+            	print('Collected fuel cell')
+            	self.mineCollectedCount += 1
+
+        	elif val == 1:
+            	print('Evaded radioactive cell')
+
+        	# or if has been looking for ages, pass to next
+        	elif (time.time() - self.timeLastCell) > 30:
+            	print('Failed to collect fuel cell in time')
+
+            self.timeLastCell = time.time()
+            return True
 
     def checkWall(self):
         # check if stuck to wall
         # 251 go back and go right, 250 go left after
         if abs(self.orientation % 180 < 5 ) and (self.robotCoord[0][0] % 520 < 20):  # 530 means stuck, 10 also
-            if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 530):  # XOR
+            if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 520):  # XOR
                 return 251
             else:
                 return 250
@@ -117,7 +105,13 @@ class Controller(object):
     def atTargetCoord(self):
         error = 20  # acceptable error margin
         # returning back to safe zone. Check whether arrived
+        #takes purple part as center
         if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0])**2 + (self.robotCoord[0][1] - self.targetCoord[1])**2) < error:
+        	if self.robotCoord[0] == safeZone:
+        		tp.send(253)
+        	elif self.robotCoord[0] == startZone:
+        		tp.send(252)
+
             return True
         else:
             return False

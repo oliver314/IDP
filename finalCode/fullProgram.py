@@ -3,7 +3,7 @@ import numpy as np
 import time  # Required to use delay functions
 import keyboard
 from TransferProtocol import Transfer
-from ImageProcessing import Imaging
+from imageProcessing import Imaging
 from Controller import Controller
 
 # Initialise variables
@@ -13,44 +13,48 @@ lp = np.array([320 / 2, 10 * 255 / 100, 70 * 255 / 100])
 up = np.array([360 / 2, 60 * 255 / 100, 110 * 255 / 100])
 lc = np.array([195 / 2, 30 * 255 / 100, 65 * 255 / 100])
 uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
+startZone = (15,75)
+safeZone = (0,270)
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc) # Initialise imaging class
-    tp = Transfer('com5')  # Initialise transfer protocol class
+    tp = Transfer('com3')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space
     while not keyboard.is_pressed(' '):
         pass
 
-    ctrl = Controller(img, tp)  # Initialise controller class
+    img.updateArena()
+    ctrl = Controller(img, tp, startZone, safeZone)  # Initialise controller class
     startTime = time.time()
-    while img.cap.isOpened(): # CLEAN UP
-        #tp.send(100)
-        frame = img.capture()
-        img.showFrame(frame)
-        robotCoord = img.getCoordinates(frame)
-        while robotCoord is None:
-            frame = img.capture()
-            img.showFrame(frame)
-            robotCoord = img.getCoordinates(frame)
+
+
+    while img.cap.isOpened() and (not keyboard.is_pressed('q')):
+
+		robotCoord = img.getRobotCoordinates()
 
         if time.time() - startTime > 270:
-            targetCoord = (15, 75)
+            targetCoord = startZone
 
-        elif ctrl.mineCount > 2:
-            targetCoord = (0, 270)
+        elif (ctrl.mineCollectedCount > 4) or (len(img.coordMines) == 0):
+            targetCoord = safeZone
 
         else:
             targetCoord = img.getClosestCell(robotCoord)
-            ctrl.driveLoop(targetCoord)
-            while not ctrl.mineCaptured():  # May be worth modifying this such that the robot drives forward when within a certain range
-                ctrl.driveLoop(targetCoord)
-            continue
 
-        while not ctrl.atTargetCoord():
-            ctrl.driveLoop(targetCoord)
+        ctrl.driveLoop(robotCoord, targetCoord)
 
+        #check whether mine captured this turn and remove it from list if so
+        ctrl.mineCaptured()
+        #checks whether arrived in green or start zone and sends corresponding order
+        ctrl.atTargetCoord()
+
+
+    #shutdown motors
+    tp.send(252)
+    time.sleep(1)
+    #shutdown OpenCV
     img.shutdown()
 
 ''' NOT SURE WHAT THIS IS FOR

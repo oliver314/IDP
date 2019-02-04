@@ -22,8 +22,6 @@ class Imaging(object):
         self.cap = cv2.VideoCapture(1)
         print('Camera initialised')
 
-        self.updateArena()
-
     def updateArena(self):
         # Determine coordinates of cells
         frame = self.capture()
@@ -88,9 +86,16 @@ class Imaging(object):
 
         return minMine
 
-    def getCoordinates(self, frame):
+    def getRobotCoordinates(self):
+
+    	frame = self.capture()
+        
         purpleF = self.detectColor(frame,'p')
         greenF = self.detectColor(frame,'g')
+
+        #cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
+
+        self.showFrame(frame)
 
         if len(purpleF) == 0 or len(greenF) == 0:
             # print(str(len(purpleF)) + "  " + str(len(greenF)))
@@ -101,7 +106,7 @@ class Imaging(object):
                 cv2.imwrite("frame" + str(self.count/5)+ ".png", frame)
             self.count += 1
             '''
-            return None
+            return getRobotCoordinates()
 
         purpleF = purpleF[0]
         greenF = greenF[0]
@@ -115,9 +120,8 @@ class Imaging(object):
         # angle with respect to horizontal, positive as anticlockwise. Counterintuitive sign in expression bc y axis inverted
         return math.degrees(math.atan2(-purpleC[1] + greenC[1], purpleC[0] - greenC[0]))
 
-    def getReferenceAngle(self, frame, robotCoord, targetCoord):
+    def getReferenceAngle(self, robotCoord, targetCoord):
         purpleC, greenC = robotCoord
-        cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
         return math.degrees(math.atan2(-targetCoord[1] + greenC[1], targetCoord[0] - greenC[0]))
 
     def showFrame(self, frame):

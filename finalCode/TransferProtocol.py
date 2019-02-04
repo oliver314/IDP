@@ -16,6 +16,7 @@ class Transfer(object):
         while self.AS.in_waiting:
             val = self.AS.read()
             val = int.from_bytes(val, byteorder='big')
+            print(val)
         return val
 
     def readline(self):

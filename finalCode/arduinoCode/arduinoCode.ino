@@ -74,7 +74,8 @@ void cellRoutine(){
 boolean hallSensorTest(){
   int value;
   value = analogRead(HallPin);
-  return (value<270) ||  (value > 340);
+  Serial.write(value-200);
+  return (value<280) ||  (value > 320);
   /*
   int value = 0;
   for(int i = 0; i < 5; i++){
