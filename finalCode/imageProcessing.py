@@ -27,7 +27,11 @@ class Imaging(object):
         frame = self.capture()
         rectMines = self.detectColor(frame, 'c', minArea=5);
         for rect in rectMines:
-            self.coordMines.append((rect[0] + rect[2] / 2, rect[1] + rect[3] / 2))
+        	#check whether mine too dangerous to go to since close to camera limit
+        	#TODO check value
+        	candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+        	if candidate[1] < 460:
+            	self.coordMines.append(candidate)
 
         # starts at lowest y and goes up, ie from top to bottom if image
         self.coordMines = sorted(self.coordMines, key=lambda x: (x[1], x[0]))
@@ -73,8 +77,9 @@ class Imaging(object):
 
         return coord
 
-    def getClosestCell(self, robotCoord, rightLimit=560):
+    def getClosestCell(self, robotCoord):
         closest = 490000
+        rightLimit = 520
         minMine = [0, 0]
         purpleC = robotCoord[0]
         for mine in self.coordMines:
@@ -84,6 +89,9 @@ class Imaging(object):
                     minMine = mine
                     closest = dist
 
+        #no mines in field left. Collect back ones now, start from bottom
+        if closest == 490000:
+        	minMine = self.coordMines[len(coordMines)-1]
         return minMine
 
     def getRobotCoordinates(self):

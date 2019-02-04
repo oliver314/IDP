@@ -56,15 +56,3 @@ if __name__ == "__main__":
     time.sleep(1)
     #shutdown OpenCV
     img.shutdown()
-
-''' NOT SURE WHAT THIS IS FOR
-if firstGo:
-    rightLimit = 520
-else:
-    rightLimit = 560
-
-if (len(coordMines) < 3):
-    targetMine = coordMines[0]
-else:
-    targetMine = getClosestCell(goldC, rightLimit)
-'''
