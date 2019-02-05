@@ -34,6 +34,7 @@ if __name__ == "__main__":
         robotCoord = img.getRobotCoordinates()
 
         if (ctrl.mineCollectedCount > 4) or (len(img.coordMines) == 0) or time.time() - startTime > 300:
+            print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 
         elif ctrl.mineCollectedCount == 0 and time.time() - startTime > 300:

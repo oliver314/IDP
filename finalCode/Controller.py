@@ -77,6 +77,7 @@ class Controller(object):
 
         elif val is not None:
             self.img.removeMine(self.targetCoord)
+            print("Message from Arduino: "+ val)
             if val == 0:
                 print('Collected fuel cell')
                 self.mineCollectedCount += 1

@@ -130,7 +130,7 @@ class Imaging(object):
         if mine in self.coordMines:
             self.coordMines.remove(mine)
         else:
-            print("Tried to remove inexistent mine")
+            print("Tried to remove inexistent mine" + mine)
 
     def shutdown(self):
         self.cap.release()

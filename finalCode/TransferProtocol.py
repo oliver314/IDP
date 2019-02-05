@@ -15,7 +15,7 @@ class Transfer(object):
         while self.AS.in_waiting:
             val = self.AS.read()
             val = int.from_bytes(val, byteorder='big')
-            print(val)
+            print("Values in Serial buffer: " +str(val))
         return val
 
     def readline(self):
@@ -27,6 +27,9 @@ class Transfer(object):
 
     def send(self, val):
         if type(val) is int:
-            self.AS.write(val.to_bytes(1, byteorder='big'))
+            try:
+                self.AS.write(val.to_bytes(1, byteorder='big'))
+            except:
+                print("Couldn't send value "+ str(val))
         else:
             print('Value must be an integer')
