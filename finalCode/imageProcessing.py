@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import math
 
-
 class Imaging(object):
     def __init__(self, lg, ug, lp, up, lc, uc):
         # Initialising colour boundaries

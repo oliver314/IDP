@@ -3,7 +3,7 @@ import numpy as np
 import time  # Required to use delay functions
 import keyboard
 from TransferProtocol import Transfer
-from imageProcessing import Imaging
+from ImageProcessing import Imaging
 from Controller import Controller
 
 # Initialise variables
