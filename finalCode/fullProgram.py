@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
 
-		robotCoord = img.getRobotCoordinates()
+        robotCoord = img.getRobotCoordinates()
 
         if time.time() - startTime > 270:
             targetCoord = startZone

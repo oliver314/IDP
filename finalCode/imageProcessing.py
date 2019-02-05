@@ -27,11 +27,11 @@ class Imaging(object):
         frame = self.capture()
         rectMines = self.detectColor(frame, 'c', minArea=5);
         for rect in rectMines:
-        	#check whether mine too dangerous to go to since close to camera limit
-        	#TODO check value
-        	candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
-        	if candidate[1] < 460:
-            	self.coordMines.append(candidate)
+            #check whether mine too dangerous to go to since close to camera limit
+            #TODO check value
+            candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+            if candidate[1] < 460:
+                self.coordMines.append(candidate)
 
         # starts at lowest y and goes up, ie from top to bottom if image
         self.coordMines = sorted(self.coordMines, key=lambda x: (x[1], x[0]))
@@ -91,12 +91,12 @@ class Imaging(object):
 
         #no mines in field left. Collect back ones now, start from bottom
         if closest == 490000:
-        	minMine = self.coordMines[len(coordMines)-1]
+            minMine = self.coordMines[len(coordMines)-1]
         return minMine
 
     def getRobotCoordinates(self):
 
-    	frame = self.capture()
+        frame = self.capture()
         
         purpleF = self.detectColor(frame,'p')
         greenF = self.detectColor(frame,'g')
@@ -136,7 +136,10 @@ class Imaging(object):
         cv2.imshow('frame', frame)
 
     def removeMine(self, mine):
-        self.coordMines.remove(mine)
+    	if self.coordMines.contains(mine):
+        	self.coordMines.remove(mine)
+        else:
+        	print("Tried to remove inexistent mine")
 
     def shutdown(self):
         self.cap.release()

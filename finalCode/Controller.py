@@ -62,8 +62,8 @@ class Controller(object):
         self.deltaT = time.time() - self.timeOld
         self.timeOld = time.time()
 
-        if self.atDestination():
-        	PD = 100
+        if self.atTargetCoord():
+            PD = 100
 
         # Check if robot has collided with arena wall
         wallCheck = self.checkWall()
@@ -76,20 +76,20 @@ class Controller(object):
         # Check for response from robot
         val = self.tp.read()
         if val is None:
-        	return False
+            return False
         else:
             self.img.removeMine(self.targetCoord)
 
-        	if val == 0:
-            	print('Collected fuel cell')
-            	self.mineCollectedCount += 1
+            if val == 0:
+                print('Collected fuel cell')
+                self.mineCollectedCount += 1
 
-        	elif val == 1:
-            	print('Evaded radioactive cell')
+            elif val == 1:
+                print('Evaded radioactive cell')
 
-        	# or if has been looking for ages, pass to next
-        	elif (time.time() - self.timeLastCell) > 30:
-            	print('Failed to collect fuel cell in time')
+            # or if has been looking for ages, pass to next
+            elif (time.time() - self.timeLastCell) > 30:
+                print('Failed to collect fuel cell in time')
 
             self.timeLastCell = time.time()
             return True
@@ -110,10 +110,10 @@ class Controller(object):
         # returning back to safe zone. Check whether arrived
         #takes purple part as center
         if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0])**2 + (self.robotCoord[0][1] - self.targetCoord[1])**2) < error:
-        	if self.robotCoord[0] == self.safeZone:
-        		tp.send(253)
-        	elif self.robotCoord[0] == self.startZone:
-        		tp.send(252)
+            if self.robotCoord[0] == self.safeZone:
+                tp.send(253)
+            elif self.robotCoord[0] == self.startZone:
+                tp.send(252)
 
             return True
         else:
