@@ -107,9 +107,11 @@ class Controller(object):
             self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
             if self.targetCoord == self.safeZone:
                 self.tp.send(253)
+                time.sleep(0.1)
                 self.mineCollectedCount = 0
             elif self.targetCoord == self.startZone:
                 self.tp.send(252)
+                time.sleep(0.1)
             return True
         else:
             return False

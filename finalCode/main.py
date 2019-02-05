@@ -46,8 +46,6 @@ if __name__ == "__main__":
 
         # check whether mine captured this turn and remove it from list if so
         ctrl.mineCaptured()
-        # checks whether arrived in green or start zone and sends corresponding order
-        ctrl.atTargetCoord()
 
     # shutdown motors
     tp.send(252)

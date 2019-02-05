@@ -15,8 +15,11 @@ Servo gate;
 // Initialise sensor variables
 int IRPin = A9;
 int HallPin = A8;
+int movePin = 1;
+int capturePin = 2;
 int IRValue = 0;
 int HallValue = 0;
+int val = 252;
 
 const int crit = 125;
 
@@ -25,8 +28,12 @@ void setup() {
   gate.attach(10);                          // Attach servo to board
   close_gate();
   AFMS.begin();                             // Create with the default frequency 1.6KHz
+  pinMode(movePin, OUTPUT);                 // Configure LED pins
+  pinMode(capturePin, OUTPUT);
+  digitalWrite(movePin, LOW);
+  digitalWrite(capturePin, HIGH);
   
-  /* Set the speed to start, from 0 (off) to 255 (max speed)*/
+  // Set the speed to start, from 0 (off) to 255 (max speed)
   drive(150,150);
   halt();
   // turn on motor
@@ -35,13 +42,11 @@ void setup() {
 }
 
 void loop() {
-  int val;
-
-  if(Serial.available() > 0){
-    delay(100);
+  while (Serial.available() > 0){
+    //delay(100);
     val = Serial.read();
-    driveLoop(val);
   }
+     driveLoop(val);
 
   IRValue = analogRead(IRPin);
   //Serial.println(IRValue);
@@ -66,6 +71,7 @@ void cellRoutine(){
     delay(1500);
     close_gate();
     Serial.write(0);
+    digitalWrite(capturePin, HIGH);
   }
   halt();
   
@@ -97,6 +103,7 @@ void drive(int speedL, int speedR){
     }
     leftMotor->setSpeed(speedL);
     rightMotor->setSpeed(speedR);
+    digitalWrite(movePin, HIGH);
 }
 
 void driveLoop(int val){
@@ -126,6 +133,7 @@ void driveLoop(int val){
       drive(-150,-150);
       delay(5000);
       halt();
+      digitalWrite(capturePin, LOW);
     }
     
     //go back and go right
@@ -165,4 +173,5 @@ void close_gate(){
 void halt(){
   leftMotor->setSpeed(0);
   rightMotor->setSpeed(0);
+  digitalWrite(movePin, LOW);
 }
