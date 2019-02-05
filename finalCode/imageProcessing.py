@@ -27,8 +27,8 @@ class Imaging(object):
         frame = self.capture()
         rectMines = self.detectColor(frame, 'c', minArea=5);
         for rect in rectMines:
-            #check whether mine too dangerous to go to since close to camera limit
-            #TODO check value
+            # check whether mine too dangerous to go to since close to camera limit
+            # TODO check value
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
             if candidate[1] < 460:
                 self.coordMines.append(candidate)
@@ -89,32 +89,24 @@ class Imaging(object):
                     minMine = mine
                     closest = dist
 
-        #no mines in field left. Collect back ones now, start from bottom
+        # no mines in field left. Collect back ones now, start from bottom
         if closest == 490000:
-            minMine = self.coordMines[len(coordMines)-1]
+            minMine = self.coordMines[len(coordMines) - 1]
         return minMine
 
     def getRobotCoordinates(self):
-
+        # Returns coordinates of green and purple rectangles on robot
         frame = self.capture()
-        
-        purpleF = self.detectColor(frame,'p')
-        greenF = self.detectColor(frame,'g')
+        purpleF = self.detectColor(frame, 'p')
+        greenF = self.detectColor(frame, 'g')
 
-        #cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
+        # cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
 
         self.showFrame(frame)
 
         if len(purpleF) == 0 or len(greenF) == 0:
-            # print(str(len(purpleF)) + "  " + str(len(greenF)))
-            # Save photo if several frames fail
-            '''
-            if (self.count % 5 == 0):
-                print('here')
-                cv2.imwrite("frame" + str(self.count/5)+ ".png", frame)
-            self.count += 1
-            '''
-            return getRobotCoordinates()
+            #saveImage()
+            return self.getRobotCoordinates()
 
         purpleF = purpleF[0]
         greenF = greenF[0]
@@ -136,11 +128,17 @@ class Imaging(object):
         cv2.imshow('frame', frame)
 
     def removeMine(self, mine):
-    	if self.coordMines.contains(mine):
-        	self.coordMines.remove(mine)
+        if mine in self.coordMines:
+            self.coordMines.remove(mine)
         else:
-        	print("Tried to remove inexistent mine")
+            print("Tried to remove inexistent mine")
 
     def shutdown(self):
         self.cap.release()
         cv2.destroyAllWindows()
+
+    def saveImage(self):
+        # Save photo if several frames fail
+        if (self.count % 5 == 0):
+            cv2.imwrite("frame" + str(self.count/5)+ ".png", frame)
+            self.count += 1

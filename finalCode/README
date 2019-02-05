@@ -1,0 +1,12 @@
+ARDUINO KEY:
+
+0 - 124: Drive right (to varying degrees)
+125: Drive straight
+126 - 249: Drive left (to varying degrees)
+
+255: Sharp right on spot
+254: Sharp left on spot
+253: Safe zone routine
+252: Halt
+251: Wall routine with right reverse turn (to go left)
+250: Wall routine with left reverse turn (to go right)

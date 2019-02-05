@@ -18,7 +18,7 @@ int HallPin = A8;
 int IRValue = 0;
 int HallValue = 0;
 
-const int crit = 100;
+const int crit = 125;
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
@@ -74,8 +74,7 @@ void cellRoutine(){
 boolean hallSensorTest(){
   int value;
   value = analogRead(HallPin);
-  Serial.write(value-200);
-  return (value<280) ||  (value > 320);
+  return (value < 280) ||  (value > 320);
   /*
   int value = 0;
   for(int i = 0; i < 5; i++){

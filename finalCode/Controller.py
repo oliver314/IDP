@@ -1,5 +1,4 @@
 import time
-import keyboard
 import math
 
 class Controller(object):
@@ -22,12 +21,6 @@ class Controller(object):
         controlSignal = self.controlLoop()
         self.tp.send(controlSignal)
         time.sleep(0.1)
-
-        ''' EXPERIMENTAL
-        if self.atTargetCoord():
-            self.tp.send(100)
-            time.sleep(1)
-        '''
 
     def controlLoop(self):
         kd = 0.0001
@@ -53,7 +46,7 @@ class Controller(object):
             PD = kd * deriv + kp * errorAngles[-1]
             # transform value to 0 to 200
             # thus 100 means straight, and above 100 is to left
-            PD = 100 + 130 * PD
+            PD = 125 + 130 * PD
             # check in range of unused values
             PD = max(PD, 0)
             PD = min(PD, 249)
@@ -97,7 +90,7 @@ class Controller(object):
     def checkWall(self):
         # check if stuck to wall
         # 251 go back and go right, 250 go left after
-        if abs(self.orientation % 180 < 5 ) and (self.robotCoord[0][0] % 520 < 20):  # 530 means stuck, 10 also
+        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 520 < 20):  # 530 means stuck, 10 also
             if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 520):  # XOR
                 return 251
             else:
@@ -106,15 +99,17 @@ class Controller(object):
             return None
 
     def atTargetCoord(self):
+        # Determines whether robot is within acceptable error margin of target coordinates
         error = 20  # acceptable error margin
         # returning back to safe zone. Check whether arrived
-        #takes purple part as center
-        if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0])**2 + (self.robotCoord[0][1] - self.targetCoord[1])**2) < error:
-            if self.robotCoord[0] == self.safeZone:
-                tp.send(253)
-            elif self.robotCoord[0] == self.startZone:
-                tp.send(252)
-
+        # takes purple part as center
+        if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0]) ** 2 + (
+            self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
+            if self.targetCoord == self.safeZone:
+                self.tp.send(253)
+                self.mineCollectedCount = 0
+            elif self.targetCoord == self.startZone:
+                self.tp.send(252)
             return True
         else:
             return False

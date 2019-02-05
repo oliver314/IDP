@@ -1,7 +1,6 @@
 import serial  # Serial imported for Serial communication
 import time  # Required to use delay functions
 
-
 class Transfer(object):
     def __init__(self, port='com5'):
         # Establishes connection with Arduino
