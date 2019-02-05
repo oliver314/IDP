@@ -65,14 +65,18 @@ class Controller(object):
 
         return int(round(PD))
 
-    def mineCaptured(self):
+    def checkMineCaptured(self):
         # Check for response from robot
         val = self.tp.read()
-        if val is None:
-            return False
-        else:
+
+        # if has been looking for ages, pass to next
+        if (time.time() - self.timeLastCell) > 30:
+            print('Failed to collect fuel cell in time')
+            self.timeLastCell = time.time()
             self.img.removeMine(self.targetCoord)
 
+        elif val is not None:
+            self.img.removeMine(self.targetCoord)
             if val == 0:
                 print('Collected fuel cell')
                 self.mineCollectedCount += 1
@@ -80,12 +84,7 @@ class Controller(object):
             elif val == 1:
                 print('Evaded radioactive cell')
 
-            # or if has been looking for ages, pass to next
-            elif (time.time() - self.timeLastCell) > 30:
-                print('Failed to collect fuel cell in time')
-
             self.timeLastCell = time.time()
-            return True
 
     def checkWall(self):
         # check if stuck to wall

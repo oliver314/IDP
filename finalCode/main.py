@@ -45,7 +45,7 @@ if __name__ == "__main__":
         ctrl.driveLoop(robotCoord, targetCoord)
 
         # check whether mine captured this turn and remove it from list if so
-        ctrl.mineCaptured()
+        ctrl.checkMineCaptured()
 
     # shutdown motors
     tp.send(252)

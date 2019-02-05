@@ -90,7 +90,7 @@ class Imaging(object):
 
         # no mines in field left. Collect back ones now, start from bottom
         if closest == 490000:
-            minMine = self.coordMines[len(coordMines) - 1]
+            minMine = self.coordMines[-1]
         return minMine
 
     def getRobotCoordinates(self):
