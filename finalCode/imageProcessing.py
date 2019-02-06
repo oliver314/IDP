@@ -125,6 +125,7 @@ class Imaging(object):
 
     def showFrame(self, frame):
         cv2.imshow('frame', frame)
+        cv2.waitKey(25)
 
     def removeMine(self, mine):
         if mine in self.coordMines:
