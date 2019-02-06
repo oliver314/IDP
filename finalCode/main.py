@@ -42,11 +42,13 @@ if __name__ == "__main__":
 
         else:
             targetCoord = img.getClosestCell(robotCoord)
+            # check whether mine captured this turn and remove it from list if so
+            ctrl.checkMineCaptured()
 
+        #print(targetCoord)
         ctrl.driveLoop(robotCoord, targetCoord)
 
-        # check whether mine captured this turn and remove it from list if so
-        ctrl.checkMineCaptured()
+
 
     # shutdown motors
     tp.send(252)

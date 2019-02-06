@@ -36,19 +36,20 @@ class Controller(object):
         # PD controller
         PD = 0
         e = errorAngles[-1]
+        print(e)
         # makes no sense to try and correct course while driving
-        if (e < -10 and e > -350):
+        if  e < -10:# and e > -350):
             # print("Turn left")
             PD = 254
-        elif e > 10 or e < 350:
+        elif e > 10:# or e < 350:
             # print("Turn right")
             PD = 255
         else:
             deriv = (errorAngles[-1] - errorAngles[-3]) / (2 * self.deltaT)
-            if e > 20:
+            '''if e > 20:
             	e = 360 - e
             if e < -20:
-            	e = -360 - e
+            	e = -360 - e'''
             PD = kd * deriv + kp * e
             # transform value to 0 to 200
             # thus 100 means straight, and above 100 is to left
@@ -76,7 +77,7 @@ class Controller(object):
         val = self.tp.read()
 
         # if has been looking for ages, pass to next
-        if (time.time() - self.timeLastCell) > 20:
+        if (time.time() - self.timeLastCell) > 30:
             print('Failed to collect fuel cell in time')
             self.timeLastCell = time.time()
             self.img.removeMine(self.targetCoord)
@@ -113,7 +114,14 @@ class Controller(object):
                     self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
             if self.targetCoord == self.safeZone:
                 self.tp.send(253)
+
                 time.sleep(0.1)
+                while abs(self.img.getOrientation(self.robotCoord)) > 5:
+                    self.tp.send(255)
+                    time.sleep(0.1)
+                self.tp.send(249)
+                time.sleep(0.1)
+
                 self.mineCollectedCount = 0
             elif self.targetCoord == self.startZone:
                 self.tp.send(252)

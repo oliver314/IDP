@@ -93,7 +93,7 @@ boolean hallSensorTest(){
   */
 }
 
-void drive(int speedL, int speedR){
+void drive(int speedR, int speedL){
     rightMotor->run(BACKWARD);
     leftMotor->run(BACKWARD);
     if (speedR < 0){
@@ -128,12 +128,12 @@ void driveLoop(int val){
       // reverse
       drive(-100,-100);
       delay(6000);
-      // turn 180
-      drive(100,-100);
-      delay(8000);
+    }
+    
+    else if (val == 249){
       // reverse
       drive(-100,-100);
-      delay(2000);
+      delay(4000);
       // open back
       open_back();
       // drive forwards
