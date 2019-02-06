@@ -1,10 +1,10 @@
-from TransferProtocol import TransferProtocol
+from TransferProtocol import Transfer
 import time
 
-tp = TransferProtocol(port='com5')
+tp = Transfer(port='com5')
 
 while True:
-    speed = int(input('Input speed: '))
+    angle = int(input('Input angle: '))
     #direction = int(input('Input direction: '))+127
-    tp.send(speed.to_bytes(1,'big'))
+    tp.send(angle)
     #ArduinoSerial.write(direction.to_bytes(1, 'big'))

@@ -10,31 +10,28 @@ Adafruit_DCMotor *rightMotor = AFMS.getMotor(3);
 Adafruit_DCMotor *leftMotor = AFMS.getMotor(4);
 
 // Initialise servo
-Servo gate;
+Servo front;
+Servo back;
 
 // Initialise sensor variables
 int IRPin = A9;
 int HallPin = A8;
+int movePin = 1;
+int capturePin = 2;
 int IRValue = 0;
 int HallValue = 0;
 int val = 252;
-//pins to be changed
-const int trigPin = 10;
-const int echoPin = 11;
-int movePin = 1;
-int capturePin = 2;
 
 const int crit = 125;
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
-  gate.attach(10);                          // Attach servo to board
-  close_gate();
+  front.attach(10);                          // Attach servos to board
+  back.attach(9);
+  close_front();
+  close_back();
   AFMS.begin();                             // Create with the default frequency 1.6KHz
-
-  pinMode(trigPin, OUTPUT);// Sets the trigPin as an Output
-  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
-  pinMode(movePin, OUTPUT);// Configure LED pins
+  pinMode(movePin, OUTPUT);                 // Configure LED pins
   pinMode(capturePin, OUTPUT);
   digitalWrite(movePin, LOW);
   digitalWrite(capturePin, HIGH);
@@ -56,25 +53,10 @@ void loop() {
 
   IRValue = analogRead(IRPin);
   //Serial.println(IRValue);
-  if(IRValue > 300){
+  if(IRValue > 500){
     //cell caught
     cellRoutine();
   }
-}
-
-int distance(){
-    // Clears the trigPin
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  // Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  long duration = pulseIn(echoPin, HIGH);
-  // Calculating the distance
-  int distance= duration*0.034/2;
-  return distance;
 }
 
 void cellRoutine(){
@@ -83,14 +65,14 @@ void cellRoutine(){
   //true if dangerous
   if(hallSensorTest()){
     drive(150,150);
-    delay(2000);
+    delay(500);
     Serial.write(1);
   }
   else{
-    open_gate();
+    open_front();
     drive(150,150);
-    delay(1500);
-    close_gate();
+    delay(1000);
+    close_front();
     Serial.write(0);
     digitalWrite(capturePin, HIGH);
   }
@@ -140,36 +122,38 @@ void driveLoop(int val){
     
     //arrived at green zone => mechanism to release cells
     else if (val == 253){
-      /*if(distance()<6){//can t use that since cak 253 only send once
-        drive(-255,0);
-        delay(5250);     
-      }*/
-      //left side facing wall, low green zone
-      drive(-255,0);
-      delay(5250);     
-      //open backdoor
-      drive(200,200);
-      while(distance()>10){
-        
-      }
+      // align on wall
+      drive(100,100);
+      delay(4000);
+      // reverse
+      drive(-100,-100);
+      delay(6000);
+      // turn 180
+      drive(100,-100);
+      delay(8000);
+      // reverse
+      drive(-100,-100);
+      delay(2000);
+      // open back
+      open_back();
+      // drive forwards
+      drive(150,150);
+      delay(2000);
+      close_back();
       halt();
       digitalWrite(capturePin, LOW);
     }
     
     //go back and go right
-    else if(val == 251){//tested: gives accurate values for as low as 1 cm.
-      if(distance()<6){
-        drive(-255,0);
-        delay(5250);     
-      }
+    else if(val == 251){
+      drive(-255,0);
+      delay(5250);     
     }
     
     //go back and go left
     else if(val == 250){
-      if(distance()<6){
-        drive(0,-255);
-        delay(5250);
-      }
+      drive(0,-255);
+      delay(5250);
     }
     
     else if(val == 252){
@@ -182,15 +166,27 @@ void driveLoop(int val){
 }
 
 
-void open_gate(){
-  // Code to open gate
-  gate.write(120);
+void open_front(){
+  // Code to open front
+  front.write(20);
   delay(500);
 }
 
-void close_gate(){
-  // Code to close gate
-  gate.write(40);
+void close_front(){
+  // Code to close front
+  front.write(100);
+  delay(500);
+}
+
+void open_back(){
+  // Code to open back
+  back.write(80);
+  delay(500);
+}
+
+void close_back(){
+  // Code to close back
+  back.write(3);
   delay(500);
 }
 
