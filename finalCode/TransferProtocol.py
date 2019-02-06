@@ -15,7 +15,7 @@ class Transfer(object):
         while self.AS.in_waiting:
             val = self.AS.read()
             val = int.from_bytes(val, byteorder='big')
-            print("Values in Serial buffer: " +str(val))
+            #print("Values in Serial buffer: " +str(val))
         return val
 
     def readline(self):

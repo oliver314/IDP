@@ -11,10 +11,16 @@ void setup() {
 }
 
 void loop() {
-  int pos;
+  myservo.write(85);
+  delay(1000);
+  myservo.write(20);
+  delay(1000);
+  myservo.write(40);
+  delay(1000);
+  /*
   if (Serial.available() > 0) {
     pos = Serial.read();
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
+    delay(500);                       // waits 15ms for the servo to reach the position
+  } */
 }

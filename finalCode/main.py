@@ -18,7 +18,7 @@ safeZone = (0, 270)
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
-    tp = Transfer('com3')  # Initialise transfer protocol class
+    tp = Transfer('com5')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space
@@ -33,11 +33,11 @@ if __name__ == "__main__":
 
         robotCoord = img.getRobotCoordinates()
 
-        if (ctrl.mineCollectedCount > 4) or (len(img.coordMines) == 0) or time.time() - startTime > 300:
+        if (ctrl.mineCollectedCount > 4) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
             print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 
-        elif ctrl.mineCollectedCount == 0 and time.time() - startTime > 300:
+        elif (ctrl.mineCollectedCount == 0 and time.time() - startTime > 300) or len(img.coordMines)==0:
             targetCoord = startZone
 
         else:

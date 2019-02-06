@@ -70,14 +70,14 @@ class Controller(object):
         val = self.tp.read()
 
         # if has been looking for ages, pass to next
-        if (time.time() - self.timeLastCell) > 30:
+        if (time.time() - self.timeLastCell) > 20:
             print('Failed to collect fuel cell in time')
             self.timeLastCell = time.time()
             self.img.removeMine(self.targetCoord)
 
         elif val is not None:
             self.img.removeMine(self.targetCoord)
-            print("Message from Arduino: "+ val)
+            print("Message from Arduino: "+ str(val))
             if val == 0:
                 print('Collected fuel cell')
                 self.mineCollectedCount += 1
@@ -90,8 +90,8 @@ class Controller(object):
     def checkWall(self):
         # check if stuck to wall
         # 251 go back and go right, 250 go left after
-        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 520 < 20):  # 530 means stuck, 10 also
-            if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 520):  # XOR
+        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 525 < 10):  # 530 means stuck, 10 also
+            if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 525):  # XOR
                 return 251
             else:
                 return 250
