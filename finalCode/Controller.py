@@ -34,16 +34,21 @@ class Controller(object):
 
         # PD controller
         PD = 0
+        e = errorAngles[-1]
         # makes no sense to try and correct course while driving
-        if errorAngles[-1] > 10:
+        if (e < -10 and e > -350):
             # print("Turn left")
             PD = 254
-        elif errorAngles[-1] < -10:
+        elif e > 10 or e < 350:
             # print("Turn right")
             PD = 255
         else:
             deriv = (errorAngles[-1] - errorAngles[-3]) / (2 * self.deltaT)
-            PD = kd * deriv + kp * errorAngles[-1]
+            if e > 20:
+            	e = 360 - e
+            if e < -20:
+            	e = -360 - e
+            PD = kd * deriv + kp * e
             # transform value to 0 to 200
             # thus 100 means straight, and above 100 is to left
             PD = 125 + 130 * PD
