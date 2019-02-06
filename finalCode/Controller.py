@@ -1,6 +1,7 @@
 import time
 import math
 
+
 class Controller(object):
     def __init__(self, img, tp, startZone, safeZone):
         # Initialising variables
@@ -77,7 +78,7 @@ class Controller(object):
 
         elif val is not None:
             self.img.removeMine(self.targetCoord)
-            print("Message from Arduino: "+ str(val))
+            print("Message from Arduino: " + str(val))
             if val == 0:
                 print('Collected fuel cell')
                 self.mineCollectedCount += 1
@@ -104,7 +105,7 @@ class Controller(object):
         # returning back to safe zone. Check whether arrived
         # takes purple part as center
         if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0]) ** 2 + (
-            self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
+                    self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
             if self.targetCoord == self.safeZone:
                 self.tp.send(253)
                 time.sleep(0.1)
