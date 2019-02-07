@@ -16,8 +16,9 @@ Servo back;
 // Initialise sensor variables
 int IRPin = A9;
 int HallPin = A8;
-int movePin = 1;
-int capturePin = 2;
+int movePin = 12;
+int capturePin = 9;
+
 int IRValue = 0;
 int HallValue = 0;
 int val = 252;
@@ -49,11 +50,11 @@ void loop() {
     //delay(100);
     val = Serial.read();
   }
-     driveLoop(val);
+  driveLoop(val);
 
   IRValue = analogRead(IRPin);
   //Serial.println(IRValue);
-  if(IRValue > 500){
+  if(IRValue > 400){
     //cell caught
     cellRoutine();
   }
@@ -147,13 +148,13 @@ void driveLoop(int val){
     //go back and go right
     else if(val == 251){
       drive(-255,0);
-      delay(5250);     
+      delay(1800);     
     }
     
     //go back and go left
     else if(val == 250){
       drive(0,-255);
-      delay(5250);
+      delay(1800);
     }
     
     else if(val == 252){

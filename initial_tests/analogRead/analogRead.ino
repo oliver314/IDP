@@ -9,7 +9,10 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *rightMotor = AFMS.getMotor(3);
 Adafruit_DCMotor *leftMotor = AFMS.getMotor(4);
 int val;
-int HallPin= 8;
+int IRPin = A9;
+int HallPin= A8;
+int movePin = 9;
+int capturePin = 12;
 
 void setup() {
   // put your setup code here, to run once:
@@ -18,12 +21,16 @@ void setup() {
   leftMotor->run(RELEASE);
   leftMotor->setSpeed(0);
   rightMotor->setSpeed(0);
+  pinMode(movePin, OUTPUT);                 // Configure LED pins
+  pinMode(capturePin, OUTPUT);
 }
 
 void loop() {
   
   // put your main code here, to run repeatedly:
-  val = analogRead(HallPin);
+  val = analogRead(IRPin);
   Serial.println(val);
   delay(100);
+  //digitalWrite(movePin, HIGH);
+  //digitalWrite(capturePin, HIGH);
 }

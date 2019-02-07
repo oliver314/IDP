@@ -14,11 +14,11 @@ up = np.array([360 / 2, 60 * 255 / 100, 110 * 255 / 100])
 lc = np.array([195 / 2, 30 * 255 / 100, 65 * 255 / 100])
 uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
 startZone = (10, 75)
-safeZone = (0, 240)
+safeZone = (0, 250)
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
-    tp = Transfer('com5')  # Initialise transfer protocol class
+    tp = Transfer('com3')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space
@@ -33,8 +33,8 @@ if __name__ == "__main__":
 
         robotCoord = img.getRobotCoordinates()
 
-        if (ctrl.mineCollectedCount > 4) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
-            print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
+        if (ctrl.mineCollectedCount > 7) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
+            #print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 
         elif (ctrl.mineCollectedCount == 0 and time.time() - startTime > 300) or len(img.coordMines)==0:

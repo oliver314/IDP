@@ -10,7 +10,7 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *M4 = AFMS.getMotor(4);
 Adafruit_DCMotor *M3 = AFMS.getMotor(3);
 // You can also make another motor on port M2
-//Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);
+//Adafruit_DCMotor *myOtherMotor = AFMS.getMotor(2);6
 
 void setup() {
   Serial.begin(9600);           // set up Serial library at 9600 bps
@@ -28,11 +28,12 @@ void setup() {
 }
 
 void loop() {
-  driveBackward(255,0);
-  //driveForward(150,0);
-  delay(5250);
-  driveForward(0,0);
   delay(3000);
+  drive(-255,0);
+  //driveForward(150,0);
+  delay(1800);
+  driveForward(0,0);
+  delay(10000);
 }
 
 
@@ -47,4 +48,19 @@ void driveForward(int speedR, int speedL){
       M4->run(BACKWARD);
       M4->setSpeed(speedL);
       M3->setSpeed(speedR);
+}
+
+void drive(int speedR, int speedL){
+    M3->run(BACKWARD);
+    M4->run(BACKWARD);
+    if (speedR < 0){
+      speedR = abs(speedR);
+      M3->run(FORWARD);
+    }
+    if (speedL < 0){
+      speedL = abs(speedL);
+      M4->run(FORWARD);
+    }
+    M4->setSpeed(speedL);
+    M3->setSpeed(speedR);
 }

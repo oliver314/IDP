@@ -36,7 +36,7 @@ class Controller(object):
         # PD controller
         PD = 0
         e = errorAngles[-1]
-        print(e)
+        #print(e)
         # makes no sense to try and correct course while driving
         if e < -10 and e > -350:
             # print("Turn left")
@@ -98,7 +98,7 @@ class Controller(object):
     def checkWall(self):
         # check if stuck to wall
         # 251 go back and go right, 250 go left after
-        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 525 < 10):  # 530 means stuck, 10 also
+        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 520 < 10):  # 530 means stuck, 10 also
             if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 525):  # XOR
                 return 251
             else:
@@ -116,10 +116,12 @@ class Controller(object):
             if self.targetCoord == self.safeZone:
                 self.tp.send(253)
                 print("Dropping off mine")
-                time.sleep(0.1)
+                time.sleep(2)
+                self.tp.send(255)
                 while abs(self.img.getOrientation(self.robotCoord)) > 5:
-                    self.tp.send(255)
-                    time.sleep(0.1)
+                    self.robotCoord = self.img.getRobotCoordinates()
+                    print(abs(self.img.getOrientation(self.robotCoord)))
+                    time.sleep(0.05)
                 self.tp.send(249)
                 time.sleep(0.1)
 

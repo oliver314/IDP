@@ -13,10 +13,13 @@ class Transfer(object):
     def read(self):
         # Returns most recent byte in buffer
         val = None
-        while self.AS.in_waiting:
-            val = self.AS.read()
-            val = int.from_bytes(val, byteorder='big')
-            # print("Values in Serial buffer: " +str(val))
+        try:
+            while self.AS.in_waiting:
+                val = self.AS.read()
+                val = int.from_bytes(val, byteorder='big')
+                # print("Values in Serial buffer: " +str(val))
+        except Exception as e:
+        	print(e)
         return val
 
     def readline(self):
