@@ -9,7 +9,7 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *rightMotor = AFMS.getMotor(3);
 Adafruit_DCMotor *leftMotor = AFMS.getMotor(4);
 int val;
-int HallPin= 9;
+int HallPin= 8;
 
 void setup() {
   // put your setup code here, to run once:
