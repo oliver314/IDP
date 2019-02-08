@@ -14,6 +14,7 @@ class Controller(object):
         self.timeLastCell = time.time()
         self.startZone = startZone
         self.safeZone = safeZone
+        self.minePassedCount = 0
 
     def driveLoop(self, robotCoord, targetCoord):
         # Main driving loop
@@ -66,11 +67,6 @@ class Controller(object):
         if self.atTargetCoord():
             PD = 100
 
-        # Check if robot has collided with arena wall
-        wallCheck = self.checkWall()
-        if wallCheck is not None:
-            PD = wallCheck
-
         return int(round(PD))
 
     def checkMineCaptured(self):
@@ -89,22 +85,13 @@ class Controller(object):
             if val == 0:
                 print('Collected fuel cell')
                 self.mineCollectedCount += 1
+                self.minePassedCount += 1
 
             elif val == 1:
                 print('Evaded radioactive cell')
+                self.mineCollectedCount += 1
 
             self.timeLastCell = time.time()
-
-    def checkWall(self):
-        # check if stuck to wall
-        # 251 go back and go right, 250 go left after
-        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 536 < 10):  # 530 means stuck, 10 also
-            if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 525):  # XOR
-                return 251
-            else:
-                return 250
-        else:
-            return None
 
     def atTargetCoord(self):
         # Determines whether robot is within acceptable error margin of target coordinates
@@ -114,7 +101,6 @@ class Controller(object):
         if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0]) ** 2 + (
                     self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
             if self.targetCoord == self.safeZone:
-                self.tp.send(253)
                 print("Dropping off mine")
                 time.sleep(2)
                 self.tp.send(255)
@@ -122,7 +108,7 @@ class Controller(object):
                     self.robotCoord = self.img.getRobotCoordinates()
                     print(abs(self.img.getOrientation(self.robotCoord)))
                     time.sleep(0.05)
-                self.tp.send(249)
+                self.tp.send(253)
                 time.sleep(0.1)
 
                 self.mineCollectedCount = 0
@@ -132,3 +118,20 @@ class Controller(object):
             return True
         else:
             return False
+
+    def wallCells(self):
+        targetCoord = (535,70)
+        val = self.tp.read()
+        while val != 2:
+            robotCoord = self.img.getRobotCoordinates()
+            self.driveLoop(robotCoord, targetCoord)
+            val = self.tp.read()
+            print(val)
+        self.tp.send(251)
+        while self.minePassedCount < 5:
+            robotCoord = self.img.getRobotCoordinates()
+            targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
+            targetCoord = (targetCoord[0]-10,targetCoord[1])
+            self.driveLoop(robotCoord, targetCoord)
+            self.checkMineCaptured()
+

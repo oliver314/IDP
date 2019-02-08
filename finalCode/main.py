@@ -14,7 +14,7 @@ up = np.array([360 / 2, 60 * 255 / 100, 110 * 255 / 100])
 lc = np.array([195 / 2, 30 * 255 / 100, 65 * 255 / 100])
 uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
 startZone = (30, 25)
-safeZone = (0, 265)
+safeZone = (70, 265)
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
@@ -29,10 +29,9 @@ if __name__ == "__main__":
     ctrl = Controller(img, tp, startZone, safeZone)  # Initialise controller class
     startTime = time.time()
 
+    ctrl.wallCells()
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
-
         robotCoord = img.getRobotCoordinates()
-
         if (ctrl.mineCollectedCount > 7) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
             #print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
