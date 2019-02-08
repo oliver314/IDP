@@ -13,12 +13,12 @@ lp = np.array([320 / 2, 10 * 255 / 100, 70 * 255 / 100])
 up = np.array([360 / 2, 60 * 255 / 100, 110 * 255 / 100])
 lc = np.array([195 / 2, 30 * 255 / 100, 65 * 255 / 100])
 uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
-startZone = (10, 75)
-safeZone = (0, 250)
+startZone = (30, 25)
+safeZone = (0, 265)
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
-    tp = Transfer('com3')  # Initialise transfer protocol class
+    tp = Transfer('com5')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space

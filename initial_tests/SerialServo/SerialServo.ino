@@ -6,14 +6,14 @@ Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
 
 void setup() {
-  myservo.attach(10);  // attaches the servo on pin 9 to the servo object
+  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
   Serial.begin(9600); 
 }
 
 void loop() {
   myservo.write(85);
   delay(1000);
-  myservo.write(20);
+  myservo.write(10);
   delay(1000);
   myservo.write(40);
   delay(1000);

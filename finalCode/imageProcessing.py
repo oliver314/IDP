@@ -29,7 +29,7 @@ class Imaging(object):
             # check whether mine too dangerous to go to since close to camera limit
             # TODO check value
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
-            if candidate[1] < 460:
+            if candidate[1] < 450:
                 self.coordMines.append(candidate)
 
         # starts at lowest y and goes up, ie from top to bottom if image

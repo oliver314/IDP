@@ -29,7 +29,8 @@ class Transfer(object):
         if type(val) is int:
             try:
                 self.AS.write(val.to_bytes(1, byteorder='big'))
-            except:
-                print("Couldn't send value "+ str(val))
+            except Exception as e:
+                print("Couldn't send value " + str(val))
+                print(e)
         else:
             print('Value must be an integer')

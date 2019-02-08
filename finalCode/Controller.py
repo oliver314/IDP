@@ -51,7 +51,7 @@ class Controller(object):
                 e = 360 - e
             if e < -20:
                 e = -360 - e
-            PD = kd * deriv + kp * e
+            PD = kd * deriv - kp * e
             # transform value to 0 to 200
             # thus 100 means straight, and above 100 is to left
             PD = 125 + 130 * PD
@@ -98,7 +98,7 @@ class Controller(object):
     def checkWall(self):
         # check if stuck to wall
         # 251 go back and go right, 250 go left after
-        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 520 < 10):  # 530 means stuck, 10 also
+        if abs(self.orientation % 180 < 5) and (self.robotCoord[0][0] % 536 < 10):  # 530 means stuck, 10 also
             if (self.targetCoord[1] > self.robotCoord[1][1]) ^ (self.robotCoord[0][0] > 525):  # XOR
                 return 251
             else:
@@ -128,7 +128,7 @@ class Controller(object):
                 self.mineCollectedCount = 0
             elif self.targetCoord == self.startZone:
                 self.tp.send(252)
-                time.sleep(0.1)
+                time.sleep(300)
             return True
         else:
             return False

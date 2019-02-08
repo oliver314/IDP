@@ -16,8 +16,8 @@ Servo back;
 // Initialise sensor variables
 int IRPin = A9;
 int HallPin = A8;
-int movePin = 12;
-int capturePin = 9;
+int movePin = 8;
+int capturePin = 12;
 
 int IRValue = 0;
 int HallValue = 0;
@@ -27,15 +27,17 @@ const int crit = 125;
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
+  open_back();
+  open_front();
   front.attach(10);                          // Attach servos to board
   back.attach(9);
-  close_front();
   close_back();
+  close_front();
   AFMS.begin();                             // Create with the default frequency 1.6KHz
   pinMode(movePin, OUTPUT);                 // Configure LED pins
   pinMode(capturePin, OUTPUT);
   digitalWrite(movePin, LOW);
-  digitalWrite(capturePin, HIGH);
+  digitalWrite(capturePin, LOW);
   
   // Set the speed to start, from 0 (off) to 255 (max speed)
   drive(150,150);
@@ -46,6 +48,7 @@ void setup() {
 }
 
 void loop() {
+  
   while (Serial.available() > 0){
     //delay(100);
     val = Serial.read();
@@ -148,13 +151,13 @@ void driveLoop(int val){
     //go back and go right
     else if(val == 251){
       drive(-255,0);
-      delay(1800);     
+      delay(1900);     
     }
     
     //go back and go left
     else if(val == 250){
       drive(0,-255);
-      delay(1800);
+      delay(1900);
     }
     
     else if(val == 252){
@@ -162,7 +165,7 @@ void driveLoop(int val){
     }
     
     else{
-      drive(2*crit-val+50, val+50);
+      drive(2*crit-val, val);
     } 
 }
 
@@ -175,19 +178,19 @@ void open_front(){
 
 void close_front(){
   // Code to close front
-  front.write(100);
+  front.write(70);
   delay(500);
 }
 
 void open_back(){
   // Code to open back
-  back.write(80);
+  back.write(125);
   delay(500);
 }
 
 void close_back(){
   // Code to close back
-  back.write(3);
+  back.write(55);//50
   delay(500);
 }
 

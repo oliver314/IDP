@@ -31,6 +31,6 @@ void loop() {
   val = analogRead(IRPin);
   Serial.println(val);
   delay(100);
-  //digitalWrite(movePin, HIGH);
-  //digitalWrite(capturePin, HIGH);
+  digitalWrite(movePin, HIGH);
+  digitalWrite(capturePin, HIGH);
 }
