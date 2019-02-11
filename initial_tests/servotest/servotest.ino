@@ -1,27 +1,32 @@
 #include <Servo.h>
 
 // Initialise servo
-Servo gate;
+Servo front;
+Servo back;
 
-int bClose = 50;
+int bClose = 55;
 int bOpen = 125;
-int fOpen = 0;
-int fClose = 70;
+int fOpen = 30;
+int fClose = 110;
 int bPin = 9;
 int fPin = 10;
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
   // put your setup code here, to run once:
-  gate.write(fClose);
-  gate.attach(fPin);                          // Attach servo to board
+  back.write(bClose);
+  back.attach(bPin);                          // Attach servo to board
+  front.write(fClose);
+  front.attach(fPin);   
   delay(500);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  gate.write(fOpen);
+  back.write(bOpen);
+  front.write(fOpen);
   delay(2000);
-  gate.write(fClose);
+  back.write(bClose);
+  front.write(fClose);
   delay(2000);
 }
