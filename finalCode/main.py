@@ -29,7 +29,7 @@ if __name__ == "__main__":
     ctrl = Controller(img, tp, startZone, safeZone)  # Initialise controller class
     startTime = time.time()
 
-    ctrl.wallCells()
+    #ctrl.wallCells()
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
         robotCoord = img.getRobotCoordinates()
         if (ctrl.mineCollectedCount > 7) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:

@@ -29,7 +29,7 @@ class Imaging(object):
             # check whether mine too dangerous to go to since close to camera limit
             # TODO check value
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
-            if candidate[1] < 450:
+            if candidate[1] < 450 and candidate[0] < 520: # second condition added 11 02
                 self.coordMines.append(candidate)
 
         # starts at lowest y and goes up, ie from top to bottom if image
@@ -76,13 +76,12 @@ class Imaging(object):
 
         return coord
 
-    def getClosestCell(self, robotCoord):
+    def getClosestCell(self, robotCoord, rightLimit=520, leftLimit=50):
         closest = 490000
-        rightLimit = 520
         minMine = [0, 0]
         purpleC = robotCoord[0]
         for mine in self.coordMines:
-            if (mine[0] > 50) and (mine[0] < rightLimit):
+            if (mine[0] > leftLimit) and (mine[0] < rightLimit):
                 dist = (mine[0] - purpleC[0]) ** 2 + (mine[1] - purpleC[1]) ** 2
                 if dist < closest:
                     minMine = mine

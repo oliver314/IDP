@@ -106,7 +106,7 @@ class Controller(object):
                 self.tp.send(255)
                 while abs(self.img.getOrientation(self.robotCoord)) > 5:
                     self.robotCoord = self.img.getRobotCoordinates()
-                    print(abs(self.img.getOrientation(self.robotCoord)))
+                    # print(abs(self.img.getOrientation(self.robotCoord)))
                     time.sleep(0.05)
                 self.tp.send(253)
                 time.sleep(0.1)
@@ -120,7 +120,7 @@ class Controller(object):
             return False
 
     def wallCells(self):
-        targetCoord = (535,70)
+        targetCoord = (535,80)
         val = self.tp.read()
         while val != 2:
             robotCoord = self.img.getRobotCoordinates()
@@ -128,10 +128,32 @@ class Controller(object):
             val = self.tp.read()
             print(val)
         self.tp.send(251)
-        while self.minePassedCount < 5:
+        targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
+        targetCoord = (targetCoord[0] - 10, targetCoord[1])
+        while self.mineCollectedCount == 0: # May need to change
             robotCoord = self.img.getRobotCoordinates()
-            targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
-            targetCoord = (targetCoord[0]-10,targetCoord[1])
             self.driveLoop(robotCoord, targetCoord)
             self.checkMineCaptured()
+
+        while self.mineCollectedCount < 5:
+            targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
+            targetCoord = (targetCoord[0] - 10, targetCoord[1])
+            robotCoord = self.img.getRobotCoordinates()
+            self.driveLoop(robotCoord, targetCoord)
+            self.checkMineCaptured()
+
+            while self.img.getOrientation(self.robotCoord) + 90 > 5:
+                # TURN RIGHT
+                self.tp.send(100)
+                self.robotCoord = self.img.getRobotCoordinates()
+                print(abs(self.img.getOrientation(self.robotCoord)))
+                time.sleep(0.05)
+
+            while self.img.getOrientation(self.robotCoord) + 90 < -5:
+                # TURN LEFT
+                self.tp.send(150)
+                self.robotCoord = self.img.getRobotCoordinates()
+                print(abs(self.img.getOrientation(self.robotCoord)))
+                time.sleep(0.05)
+
 
