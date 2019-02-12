@@ -59,7 +59,7 @@ class Controller(object):
             PD = 125 + 130 * PD
             # check in range of unused values
             PD = max(PD, 0)
-            PD = min(PD, 249)
+            PD = min(PD, 248)
 
         # Recalibrate time step
         self.deltaT = time.time() - self.timeOld
@@ -142,7 +142,10 @@ class Controller(object):
             self.checkMineCaptured()
         '''
 
-        targetCoord = (518, 430)
+        #targetCoord = (518, 430)
+        targetCoord = (518, 460) 
+        #the x value is tuned so that we drive parallely to the wall at exactly the right distance
+        #the driveloop is doing the stuff commented out below automatically!!
         self.targetCoord = targetCoord
         while not self.atTargetCoord(): #self.mineCollectedCount < 5:
             #targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
@@ -166,4 +169,8 @@ class Controller(object):
                 #print(abs(self.img.getOrientation(self.robotCoord)))
                 time.sleep(0.05)
             '''
+        self.tp.send(249)
+        time.sleep(2)
+        self.tp.send(255)
+        time.sleep(0.7)
 

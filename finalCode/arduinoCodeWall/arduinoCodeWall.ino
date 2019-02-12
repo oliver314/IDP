@@ -162,7 +162,10 @@ void driveLoop(int val){
       // Sharp turn left
       drive(-crit,crit);
     }
-    
+    else if (val == 249){  
+      // Backwards
+      drive(-200,-200);
+    }
     // At safe zone
     else if (val == 253){
       // reverse
@@ -209,7 +212,7 @@ void open_front(){
 
 void close_front(){
   // Code to close front
-  front.write(125);
+  front.write(115);
   delay(500);
 }
 
