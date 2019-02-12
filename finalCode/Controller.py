@@ -1,6 +1,6 @@
 import time
 import math
-
+import sys
 
 class Controller(object):
     def __init__(self, img, tp, startZone, safeZone):
@@ -15,6 +15,7 @@ class Controller(object):
         self.startZone = startZone
         self.safeZone = safeZone
         self.minePassedCount = 0
+        self.targetCoord = None
 
     def driveLoop(self, robotCoord, targetCoord):
         # Main driving loop
@@ -105,7 +106,7 @@ class Controller(object):
                 time.sleep(2)
                 self.tp.send(255)
                 while abs(self.img.getOrientation(self.robotCoord)) > 5:
-                    self.robotCoord = self.img.getRobotCoordinates()
+                    self.robotCoord = self.img.getRobotCoordinates(self.targetCoord)
                     # print(abs(self.img.getOrientation(self.robotCoord)))
                     time.sleep(0.05)
                 self.tp.send(253)
@@ -114,7 +115,10 @@ class Controller(object):
                 self.mineCollectedCount = 0
             elif self.targetCoord == self.startZone:
                 self.tp.send(252)
-                time.sleep(300)
+                time.sleep(1)
+                # shutdown OpenCV
+                self.img.shutdown()
+                sys.exit(0)
             return True
         else:
             return False
@@ -122,38 +126,44 @@ class Controller(object):
     def wallCells(self):
         targetCoord = (535,80)
         val = self.tp.read()
-        while val != 2:
-            robotCoord = self.img.getRobotCoordinates()
+        xR = 0
+        while xR < 535:
+            robotCoord = self.img.getRobotCoordinates(targetCoord)
             self.driveLoop(robotCoord, targetCoord)
-            val = self.tp.read()
-            print(val)
+            xR = robotCoord[0][0]
+            #val = self.tp.read()
+            #print(val)
         self.tp.send(251)
-        targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
+        '''targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
         targetCoord = (targetCoord[0] - 10, targetCoord[1])
         while self.mineCollectedCount == 0: # May need to change
             robotCoord = self.img.getRobotCoordinates()
             self.driveLoop(robotCoord, targetCoord)
             self.checkMineCaptured()
+        '''
 
-        while self.mineCollectedCount < 5:
-            targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
-            targetCoord = (targetCoord[0] - 10, targetCoord[1])
-            robotCoord = self.img.getRobotCoordinates()
+        targetCoord = (518, 400)
+        self.targetCoord = targetCoord
+        while not self.atTargetCoord(): #self.mineCollectedCount < 5:
+            #targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
+            #targetCoord = (targetCoord[0] - 10, targetCoord[1])
+            robotCoord = self.img.getRobotCoordinates(targetCoord)
             self.driveLoop(robotCoord, targetCoord)
             self.checkMineCaptured()
-
+            #print(robotCoord[0])
+            '''
             while self.img.getOrientation(self.robotCoord) + 90 > 5:
                 # TURN RIGHT
                 self.tp.send(100)
                 self.robotCoord = self.img.getRobotCoordinates()
-                print(abs(self.img.getOrientation(self.robotCoord)))
+                #print(abs(self.img.getOrientation(self.robotCoord)))
                 time.sleep(0.05)
 
             while self.img.getOrientation(self.robotCoord) + 90 < -5:
                 # TURN LEFT
                 self.tp.send(150)
                 self.robotCoord = self.img.getRobotCoordinates()
-                print(abs(self.img.getOrientation(self.robotCoord)))
+                #print(abs(self.img.getOrientation(self.robotCoord)))
                 time.sleep(0.05)
-
+            '''
 

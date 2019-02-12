@@ -19,6 +19,10 @@ class Imaging(object):
         # Initialise camera
         print('Initialising camera')
         self.cap = cv2.VideoCapture(1)
+        self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 128)
+        self.cap.set(cv2.CAP_PROP_CONTRAST, 128)
+        self.cap.set(cv2.CAP_PROP_SATURATION, 128)
+
         print('Camera initialised')
 
     def updateArena(self):
@@ -29,7 +33,7 @@ class Imaging(object):
             # check whether mine too dangerous to go to since close to camera limit
             # TODO check value
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
-            if candidate[1] < 450 and candidate[0] < 520: # second condition added 11 02
+            if candidate[1] < 450 and candidate[0] < 525: # second condition added 11 02
                 self.coordMines.append(candidate)
 
         # starts at lowest y and goes up, ie from top to bottom if image
@@ -92,19 +96,20 @@ class Imaging(object):
             minMine = self.coordMines[-1]
         return minMine
 
-    def getRobotCoordinates(self):
+    def getRobotCoordinates(self, targetCoord):
         # Returns coordinates of green and purple rectangles on robot
         frame = self.capture()
         purpleF = self.detectColor(frame, 'p')
         greenF = self.detectColor(frame, 'g')
 
-        # cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
+        if targetCoord is not None:
+            cv2.circle(frame, (round(targetCoord[0]), round(targetCoord[1])), 10, (0, 0, 255), -1)
 
         self.showFrame(frame)
 
         if len(purpleF) == 0 or len(greenF) == 0:
             #saveImage()
-            return self.getRobotCoordinates()
+            return self.getRobotCoordinates(targetCoord)
 
         purpleF = purpleF[0]
         greenF = greenF[0]
@@ -130,7 +135,8 @@ class Imaging(object):
         if mine in self.coordMines:
             self.coordMines.remove(mine)
         else:
-            print("Tried to remove inexistent mine" + mine)
+            print("Tried to remove inexistent mine" + str(mine))
+            
 
     def shutdown(self):
         self.cap.release()
