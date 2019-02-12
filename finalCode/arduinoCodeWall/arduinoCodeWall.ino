@@ -105,6 +105,9 @@ void cellRoutine(){
   if(hallSensorTest()){
     drive(150,150);
     delay(500);
+    open_front();
+    delay(500);
+    close_front();
     Serial.write(1);
   }
   else{
@@ -175,7 +178,7 @@ void driveLoop(int val){
       open_back();
       // drive forwards
       drive(150,150);
-      delay(2000);
+      delay(3000);
       close_back();
       halt();
       digitalWrite(capturePin, LOW);
@@ -206,19 +209,19 @@ void driveLoop(int val){
 
 void open_front(){
   // Code to open front
-  front.write(50);
+  front.write(30);
   delay(500);
 }
 
 void close_front(){
   // Code to close front
-  front.write(115);
+  front.write(100);
   delay(500);
 }
 
 void open_back(){
   // Code to open back
-  back.write(125);
+  back.write(138);
   delay(500);
 }
 

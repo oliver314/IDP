@@ -143,7 +143,7 @@ class Imaging(object):
         cell, dist = self.getClosestCell(robotCoord)
         print("The distance to the closest cell is "+ str(dist))
         #critical dist value to be adjusted
-        if dist < 2000:
+        if dist < 6000:
             self.coordMines.remove(cell)
         else:
             print("Tried to remove inexistent cell")        

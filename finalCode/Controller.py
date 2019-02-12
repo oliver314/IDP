@@ -2,6 +2,7 @@ import time
 import math
 import sys
 
+
 class Controller(object):
     def __init__(self, img, tp, startZone, safeZone):
         # Initialising variables
@@ -38,7 +39,7 @@ class Controller(object):
         # PD controller
         PD = 0
         e = errorAngles[-1]
-        #print(e)
+        # print(e)
         # makes no sense to try and correct course while driving
         if e < -10 and e > -350:
             # print("Turn left")
@@ -82,28 +83,28 @@ class Controller(object):
 
         elif val is not None:
             self.img.removeMine(self.robotCoord)
+            self.minePassedCount += 1
+            print(self.minePassedCount)
             print("Message from Arduino: " + str(val))
             if val == 0:
                 print('Collected fuel cell')
                 self.mineCollectedCount += 1
-                self.minePassedCount += 1
 
             elif val == 1:
                 print('Evaded radioactive cell')
-                self.mineCollectedCount += 1
 
             self.timeLastCell = time.time()
 
     def atTargetCoord(self):
         # Determines whether robot is within acceptable error margin of target coordinates
+
         error = 20  # acceptable error margin
-        # returning back to safe zone. Check whether arrived
+
         # takes purple part as center
         if math.sqrt((self.robotCoord[0][0] - self.targetCoord[0]) ** 2 + (
                     self.robotCoord[0][1] - self.targetCoord[1]) ** 2) < error:
             if self.targetCoord == self.safeZone:
                 print("Dropping off mine")
-                time.sleep(2)
                 self.tp.send(255)
                 while abs(self.img.getOrientation(self.robotCoord)) > 5:
                     self.robotCoord = self.img.getRobotCoordinates(self.targetCoord)
@@ -124,53 +125,32 @@ class Controller(object):
             return False
 
     def wallCells(self):
-        targetCoord = (535,80)
-        val = self.tp.read()
+        targetCoord = (535, 80)
         xR = 0
         while xR < 535:
             robotCoord = self.img.getRobotCoordinates(targetCoord)
             self.driveLoop(robotCoord, targetCoord)
-            xR = robotCoord[0][0]
-            #val = self.tp.read()
-            #print(val)
-        self.tp.send(251)
-        '''targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
-        targetCoord = (targetCoord[0] - 10, targetCoord[1])
-        while self.mineCollectedCount == 0: # May need to change
-            robotCoord = self.img.getRobotCoordinates()
-            self.driveLoop(robotCoord, targetCoord)
             self.checkMineCaptured()
-        '''
+            xR = robotCoord[0][0]
 
-        #targetCoord = (518, 430)
-        targetCoord = (518, 460) 
-        #the x value is tuned so that we drive parallely to the wall at exactly the right distance
-        #the driveloop is doing the stuff commented out below automatically!!
+        self.tp.send(251)
+
+        targetCoord = (517, 440)
+        self.minePassedCount = 0
+
+        # the x value is tuned so that we drive parallel to the wall at exactly the right distance
+        # the driveloop is doing the stuff commented out below automatically!!
         self.targetCoord = targetCoord
-        while not self.atTargetCoord(): #self.mineCollectedCount < 5:
-            #targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
-            #targetCoord = (targetCoord[0] - 10, targetCoord[1])
+
+        while self.minePassedCount < 5:
+            # targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
+            # targetCoord = (targetCoord[0] - 10, targetCoord[1])
             robotCoord = self.img.getRobotCoordinates(targetCoord)
             self.driveLoop(robotCoord, targetCoord)
             self.checkMineCaptured()
-            #print(robotCoord[0])
-            '''
-            while self.img.getOrientation(self.robotCoord) + 90 > 5:
-                # TURN RIGHT
-                self.tp.send(100)
-                self.robotCoord = self.img.getRobotCoordinates()
-                #print(abs(self.img.getOrientation(self.robotCoord)))
-                time.sleep(0.05)
 
-            while self.img.getOrientation(self.robotCoord) + 90 < -5:
-                # TURN LEFT
-                self.tp.send(150)
-                self.robotCoord = self.img.getRobotCoordinates()
-                #print(abs(self.img.getOrientation(self.robotCoord)))
-                time.sleep(0.05)
-            '''
-        self.tp.send(249)
-        time.sleep(2)
-        self.tp.send(255)
-        time.sleep(0.7)
-
+        print('Finished collecting wall cells')
+        self.tp.send(250)
+        time.sleep(3.5)
+        self.tp.send(125)
+        time.sleep(3)

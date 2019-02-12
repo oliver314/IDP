@@ -28,7 +28,7 @@ start with open field or handle mine in way at start correctly
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
-    tp = Transfer('com3')  # Initialise transfer protocol class
+    tp = Transfer('com5')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
         robotCoord = img.getRobotCoordinates(ctrl.targetCoord)
         if (ctrl.mineCollectedCount > 7) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
-            #print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
+            print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 
         elif (ctrl.mineCollectedCount == 0 and time.time() - startTime > 300) or len(img.coordMines)==0:
