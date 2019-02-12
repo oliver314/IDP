@@ -78,10 +78,10 @@ class Controller(object):
         if (time.time() - self.timeLastCell) > 30:
             print('Failed to collect fuel cell in time')
             self.timeLastCell = time.time()
-            self.img.removeMine(self.targetCoord)
+            self.img.removeMine(self.robotCoord)
 
         elif val is not None:
-            self.img.removeMine(self.targetCoord)
+            self.img.removeMine(self.robotCoord)
             print("Message from Arduino: " + str(val))
             if val == 0:
                 print('Collected fuel cell')
@@ -142,7 +142,7 @@ class Controller(object):
             self.checkMineCaptured()
         '''
 
-        targetCoord = (518, 400)
+        targetCoord = (518, 430)
         self.targetCoord = targetCoord
         while not self.atTargetCoord(): #self.mineCollectedCount < 5:
             #targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)

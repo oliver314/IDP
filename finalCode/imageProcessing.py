@@ -94,7 +94,7 @@ class Imaging(object):
         # no mines in field left. Collect back ones now, start from bottom
         if closest == 490000:
             minMine = self.coordMines[-1]
-        return minMine
+        return minMine, closest
 
     def getRobotCoordinates(self, targetCoord):
         # Returns coordinates of green and purple rectangles on robot
@@ -131,12 +131,22 @@ class Imaging(object):
         cv2.imshow('frame', frame)
         cv2.waitKey(25)
 
+    '''
     def removeMine(self, mine):
         if mine in self.coordMines:
             self.coordMines.remove(mine)
         else:
             print("Tried to remove inexistent mine" + str(mine))
-            
+    '''
+    #remove mine edited so that removes closest one if there is any
+    def removeMine(self, robotCoord):
+        cell, dist = self.getClosestCell(robotCoord)
+        print("The distance to the closest cell is "+ str(dist))
+        #critical dist value to be adjusted
+        if dist < 1000:
+            self.coordMines.remove(self.robotCoord)
+        else:
+            print("Tried to remove inexistent cell")        
 
     def shutdown(self):
         self.cap.release()

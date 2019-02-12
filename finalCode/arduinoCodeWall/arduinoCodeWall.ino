@@ -17,8 +17,8 @@ Servo back;
 // defines pins numbers
 int frontTrigPin = 6;
 int frontEchoPin = 7;
-int sideTrigPin = 1;
-int sideEchoPin = 2;
+int sideTrigPin = 2;
+int sideEchoPin = 3;
 int IRPin = A9;
 int HallPin = A8;
 int movePin = 8;
@@ -122,7 +122,7 @@ void cellRoutine(){
 boolean hallSensorTest(){
   int value;
   value = analogRead(HallPin);
-  return (value < 280) ||  (value > 320);
+  return (value < 300) ||  (value > 340);
   /*
   int value = 0;
   for(int i = 0; i < 5; i++){
@@ -203,13 +203,13 @@ void driveLoop(int val){
 
 void open_front(){
   // Code to open front
-  front.write(30);
+  front.write(50);
   delay(500);
 }
 
 void close_front(){
   // Code to close front
-  front.write(110);
+  front.write(125);
   delay(500);
 }
 
@@ -221,7 +221,7 @@ void open_back(){
 
 void close_back(){
   // Code to close back
-  back.write(55);
+  back.write(58);
   delay(500);
 }
 

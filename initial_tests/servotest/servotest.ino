@@ -4,10 +4,10 @@
 Servo front;
 Servo back;
 
-int bClose = 55;
+int bClose = 58;
 int bOpen = 125;
-int fOpen = 30;
-int fClose = 110;
+int fOpen = 70;
+int fClose = 125;
 int bPin = 9;
 int fPin = 10;
 

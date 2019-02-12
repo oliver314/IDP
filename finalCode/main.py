@@ -50,7 +50,7 @@ if __name__ == "__main__":
             targetCoord = startZone
 
         else:
-            targetCoord = img.getClosestCell(robotCoord)
+            targetCoord, dist = img.getClosestCell(robotCoord)
             # check whether mine captured this turn and remove it from list if so
             ctrl.checkMineCaptured()
 
