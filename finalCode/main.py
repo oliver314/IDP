@@ -13,12 +13,22 @@ lp = np.array([320 / 2, 10 * 255 / 100, 70 * 255 / 100])
 up = np.array([360 / 2, 60 * 255 / 100, 110 * 255 / 100])
 lc = np.array([195 / 2, 30 * 255 / 100, 65 * 255 / 100])
 uc = np.array([215 / 2, 80 * 255 / 100, 95 * 255 / 100])
-startZone = (30, 25)
-safeZone = (70, 265)
+startZone = (30, 20)
+safeZone = (90, 270)
+
+'''
+TODO
+
+if detects mine and is 45 degree scew: runs into wall indefinetely
+
+start with open field or handle mine in way at start correctly
+
+'''
+
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
-    tp = Transfer('com5')  # Initialise transfer protocol class
+    tp = Transfer('com3')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space
@@ -29,9 +39,9 @@ if __name__ == "__main__":
     ctrl = Controller(img, tp, startZone, safeZone)  # Initialise controller class
     startTime = time.time()
 
-    #ctrl.wallCells()
+    ctrl.wallCells()
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
-        robotCoord = img.getRobotCoordinates()
+        robotCoord = img.getRobotCoordinates(ctrl.targetCoord)
         if (ctrl.mineCollectedCount > 7) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
             #print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
@@ -40,7 +50,7 @@ if __name__ == "__main__":
             targetCoord = startZone
 
         else:
-            targetCoord = img.getClosestCell(robotCoord)
+            targetCoord, dist = img.getClosestCell(robotCoord)
             # check whether mine captured this turn and remove it from list if so
             ctrl.checkMineCaptured()
 

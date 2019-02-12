@@ -1,8 +1,8 @@
 // defines pins numbers
 
 #include <Servo.h>
-const int trigPin = 10;
-const int echoPin = 11;
+const int trigPin = 6;
+const int echoPin =7;
 // defines variables
 long duration;
 int distance;

@@ -15,8 +15,10 @@ Servo back;
 
 // Initialise sensor variables
 // defines pins numbers
-const int trigPin = 6;
-const int echoPin = 7;
+int frontTrigPin = 6;
+int frontEchoPin = 7;
+int sideTrigPin = 2;
+int sideEchoPin = 3;
 int IRPin = A9;
 int HallPin = A8;
 int movePin = 8;
@@ -31,8 +33,10 @@ int counter = 0;
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
-  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  pinMode(frontTrigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(frontEchoPin, INPUT); // Sets the echoPin as an Input
+  pinMode(sideTrigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(sideEchoPin, INPUT); // Sets the echoPin as an Input
   close_front();
   close_back();
   front.attach(10);                          // Attach servos to board
@@ -58,7 +62,7 @@ void loop() {
   }
   driveLoop(val);
 
-  if (getDistance() < 7){
+  if (getDistance(frontTrigPin, frontEchoPin) < 7){
     counter ++;
   }else{
     counter  = 0;
@@ -66,7 +70,8 @@ void loop() {
 
   if(counter > 30){
     counter = 0;
-    Serial.write(2);
+    drive(-255,0);
+    delay(1900); 
   }
 
   IRValue = analogRead(IRPin);
@@ -77,7 +82,7 @@ void loop() {
   }
 }
 
-int getDistance(){
+int getDistance(int trigPin, int echoPin){
   // Clears the trigPin
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -105,7 +110,7 @@ void cellRoutine(){
   else{
     open_front();
     drive(150,150);
-    delay(1000);
+    delay(800);
     close_front();
     Serial.write(0);
     digitalWrite(capturePin, HIGH);
@@ -117,7 +122,7 @@ void cellRoutine(){
 boolean hallSensorTest(){
   int value;
   value = analogRead(HallPin);
-  return (value < 280) ||  (value > 320);
+  return (value < 300) ||  (value > 340);
   /*
   int value = 0;
   for(int i = 0; i < 5; i++){
@@ -144,7 +149,11 @@ void drive(int speedR, int speedL){
 }
 
 void driveLoop(int val){
-    if (val == 255){
+
+    if(val < crit +2 && val > crit -2){
+      drive(200,200);
+    }
+    else if (val == 255){
       // Sharp turn right
       drive(crit,-crit);
     }
@@ -153,7 +162,10 @@ void driveLoop(int val){
       // Sharp turn left
       drive(-crit,crit);
     }
-    
+    else if (val == 249){  
+      // Backwards
+      drive(-200,-200);
+    }
     // At safe zone
     else if (val == 253){
       // reverse
@@ -172,13 +184,13 @@ void driveLoop(int val){
     //go back and go right
     else if(val == 251){
       drive(-255,0);
-      delay(1900);     
+      delay(1950);     
     }
     
     //go back and go left
     else if(val == 250){
       drive(0,-255);
-      delay(1900);
+      delay(1950);
       
     }
     
@@ -194,13 +206,13 @@ void driveLoop(int val){
 
 void open_front(){
   // Code to open front
-  front.write(20);
+  front.write(50);
   delay(500);
 }
 
 void close_front(){
   // Code to close front
-  front.write(100);
+  front.write(115);
   delay(500);
 }
 
@@ -212,7 +224,7 @@ void open_back(){
 
 void close_back(){
   // Code to close back
-  back.write(55);
+  back.write(58);
   delay(500);
 }
 
