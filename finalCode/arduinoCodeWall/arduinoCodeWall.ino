@@ -115,7 +115,7 @@ void cellRoutine(){
   else{
     open_front();
     drive(150,150);
-    delay(800);
+    delay(700);
     close_front();
     Serial.write(0);
     digitalWrite(capturePin, HIGH);
@@ -155,7 +155,7 @@ void drive(int speedR, int speedL){
 
 void driveLoop(int val){
 
-    if(val < crit +2 && val > crit -2){
+    if(val < crit +3 && val > crit -3){
       drive(200,200);
     }
     else if (val == 255){

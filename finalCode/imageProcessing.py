@@ -35,7 +35,9 @@ class Imaging(object):
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
             if candidate[1] < 450 and candidate[0] < 525: # second condition added 11 02
                 self.coordMines.append(candidate)
+                cv2.circle(frame, (round(candidate[0]), round(candidate[1])), 4, (0, 0, 255), -1)
 
+        cv2.imwrite("frameCells.png", frame)
         # starts at lowest y and goes up, ie from top to bottom if image
         self.coordMines = sorted(self.coordMines, key=lambda x: (x[1], x[0]))
 
@@ -96,7 +98,10 @@ class Imaging(object):
             minMine = self.coordMines[-1]
         return minMine, closest
 
-    def getRobotCoordinates(self, targetCoord):
+    def getRobotCoordinates(self, targetCoord, depth=0):
+        if depth > 50:
+            return (480, 540), (480, 520)
+
         # Returns coordinates of green and purple rectangles on robot
         frame = self.capture()
         purpleF = self.detectColor(frame, 'p')
@@ -109,7 +114,14 @@ class Imaging(object):
 
         if len(purpleF) == 0 or len(greenF) == 0:
             #saveImage()
-            return self.getRobotCoordinates(targetCoord)
+            #if at bottom and are facing north but can t see it assume it
+            if len(purpleF)>0:
+                purpleF = purpleF[0]
+                if purpleF[1] + purpleF[3] / 2 > 500:
+                    purpleC = (purpleF[0] + purpleF[2] / 2, purpleF[1] + purpleF[3] / 2)
+                    print("Assuming in deadzone with purple sticking out: " + purpleC)
+                    return purpleC, (purpleC[0], purpleC[1] + 10)
+            return self.getRobotCoordinates(targetCoord, depth=depth+1)
 
         purpleF = purpleF[0]
         greenF = greenF[0]
@@ -143,7 +155,7 @@ class Imaging(object):
         cell, dist = self.getClosestCell(robotCoord)
         print("The distance to the closest cell is "+ str(dist))
         #critical dist value to be adjusted
-        if dist < 6000:
+        if dist < 9000:
             self.coordMines.remove(cell)
         else:
             print("Tried to remove inexistent cell")        
