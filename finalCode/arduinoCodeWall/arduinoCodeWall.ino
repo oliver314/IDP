@@ -78,13 +78,7 @@ void loop() {
     drive(-255,0);
     delay(1900); 
   }
-
-  IRValue = analogRead(IRPin);
-  //Serial.println(IRValue);
-  if(IRValue > 400){
-    //cell caught
-    cellRoutine();
-  }
+  checkTripwire();
 }
 
 int getDistance(int trigPin, int echoPin){
@@ -103,19 +97,30 @@ int getDistance(int trigPin, int echoPin){
   return distance;
 }
 
+void checkTripwire(){
+  IRValue = analogRead(IRPin);
+  //Serial.println(IRValue);
+  if(IRValue > 400){
+    //cell caught
+    cellRoutine();
+  }
+}
 void cellRoutine(){
   halt();
   delay(500);
   //true if dangerous
   if(hallSensorTest()){
     drive(150,150);
-    delay(800);
+    delay(400);
     Serial.write(1);
   }
   else{
     open_front();
     drive(150,150);
-    delay(700);
+    for (int i=0; i < 5; i++){
+      delay(200);
+      checkTripwire();
+    }
     close_front();
     Serial.write(0);
     digitalWrite(capturePin, HIGH);
@@ -180,7 +185,7 @@ void driveLoop(int val){
       open_back();
       // drive forwards
       drive(150,150);
-      delay(5000);
+      delay(4000);
       close_back();
       halt();
       digitalWrite(capturePin, LOW);

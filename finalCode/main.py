@@ -42,13 +42,36 @@ if __name__ == "__main__":
     ctrl.wallCells()
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
         robotCoord = img.getRobotCoordinates(ctrl.targetCoord)
+
+        # Return to safe zone condition
         if (ctrl.mineCollectedCount > 8) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
             print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 
+        # Return to start zone condition
         elif (ctrl.mineCollectedCount == 0 and time.time() - startTime > 300) or len(img.coordMines)==0:
             targetCoord = startZone
+            ''' EXPERIMENTAL
+            img.updateArena();
+            while img.cap.isOpened() and (not keyboard.is_pressed('q')):
+                robotCoord = img.getRobotCoordinates(ctrl.targetCoord)
+                if (ctrl.mineCollectedCount > 8) or (
+                        ctrl.mineCollectedCount > 0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
+                    print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines)) + " " + str(
+                        time.time() - startTime))
+                    targetCoord = safeZone
 
+                elif (ctrl.mineCollectedCount == 0 and time.time() - startTime > 300) or len(img.coordMines) == 0:
+                    targetCoord = startZone
+
+                else:
+                    targetCoord, dist = img.getClosestCell(robotCoord)
+                    # check whether mine captured this turn and remove it from list if so
+                    ctrl.checkMineCaptured()
+
+                # print(targetCoord)
+                ctrl.driveLoop(robotCoord, targetCoord)
+                '''
         else:
             targetCoord, dist = img.getClosestCell(robotCoord)
             # check whether mine captured this turn and remove it from list if so
