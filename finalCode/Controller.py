@@ -76,15 +76,13 @@ class Controller(object):
         val = self.tp.read()
 
         # if has been looking for ages, pass to next
-        if (time.time() - self.timeLastCell) > 30:
+        if (time.time() - self.timeLastCell) > 17 and self.targetCoord not in [(517, 440),(535, 80)]:
             print('Failed to collect fuel cell in time')
             self.timeLastCell = time.time()
             self.img.removeMine(self.robotCoord)
 
         elif val is not None:
             self.img.removeMine(self.robotCoord)
-            self.minePassedCount += 1
-            print(self.minePassedCount)
             print("Message from Arduino: " + str(val))
             if val == 0:
                 print('Collected fuel cell')
@@ -136,13 +134,12 @@ class Controller(object):
         self.tp.send(251)
 
         targetCoord = (517, 440)
-        self.minePassedCount = 0
 
         # the x value is tuned so that we drive parallel to the wall at exactly the right distance
         # the driveloop is doing the stuff commented out below automatically!!
         self.targetCoord = targetCoord
 
-        while self.minePassedCount < 5:
+        while robotCoord[1][1] < 440:
             # targetCoord = self.img.getClosestCell(robotCoord, rightLimit=600, leftLimit=500)
             # targetCoord = (targetCoord[0] - 10, targetCoord[1])
             robotCoord = self.img.getRobotCoordinates(targetCoord)

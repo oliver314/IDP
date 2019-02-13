@@ -31,16 +31,21 @@ int val = 252;
 const int crit = 125;
 int counter = 0;
 
+int bClose = 60;
+int bOpen = 141;
+int fOpen = 70;
+int fClose = 130; 
+
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
   pinMode(frontTrigPin, OUTPUT); // Sets the trigPin as an Output
   pinMode(frontEchoPin, INPUT); // Sets the echoPin as an Input
   pinMode(sideTrigPin, OUTPUT); // Sets the trigPin as an Output
   pinMode(sideEchoPin, INPUT); // Sets the echoPin as an Input
-  close_front();
+  front.write(fClose);
+  back.write(bClose);
+  close_front();                          // Attach servos to board
   close_back();
-  front.attach(10);                          // Attach servos to board
-  back.attach(9);
   AFMS.begin();                             // Create with the default frequency 1.6KHz
   pinMode(movePin, OUTPUT);                 // Configure LED pins
   pinMode(capturePin, OUTPUT);
@@ -104,10 +109,7 @@ void cellRoutine(){
   //true if dangerous
   if(hallSensorTest()){
     drive(150,150);
-    delay(500);
-    open_front();
-    delay(500);
-    close_front();
+    delay(800);
     Serial.write(1);
   }
   else{
@@ -178,7 +180,7 @@ void driveLoop(int val){
       open_back();
       // drive forwards
       drive(150,150);
-      delay(3000);
+      delay(5000);
       close_back();
       halt();
       digitalWrite(capturePin, LOW);
@@ -187,7 +189,7 @@ void driveLoop(int val){
     //go back and go right
     else if(val == 251){
       drive(-255,0);
-      delay(1950);     
+      delay(1850);     
     }
     
     //go back and go left
@@ -209,26 +211,33 @@ void driveLoop(int val){
 
 void open_front(){
   // Code to open front
-  front.write(30);
-  delay(500);
+  front.attach(10);
+  front.write(fOpen);
+  delay(1500);
+  front.detach();
 }
 
 void close_front(){
   // Code to close front
-  front.write(100);
-  delay(500);
+  front.attach(10);
+  front.write(fClose);
+  delay(1500);
+  front.detach();
 }
 
 void open_back(){
   // Code to open back
-  back.write(138);
+  back.attach(9);
+  back.write(bOpen);
   delay(500);
 }
 
 void close_back(){
   // Code to close back
-  back.write(58);
-  delay(500);
+  back.attach(9);
+  back.write(bClose);
+  delay(1500);
+  back.detach();
 }
 
 

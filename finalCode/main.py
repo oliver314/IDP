@@ -42,7 +42,7 @@ if __name__ == "__main__":
     ctrl.wallCells()
     while img.cap.isOpened() and (not keyboard.is_pressed('q')):
         robotCoord = img.getRobotCoordinates(ctrl.targetCoord)
-        if (ctrl.mineCollectedCount > 7) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
+        if (ctrl.mineCollectedCount > 8) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
             print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 

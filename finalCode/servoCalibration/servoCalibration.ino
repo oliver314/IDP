@@ -4,7 +4,7 @@
 Servo front;
 Servo back;
 
-int val = 30;
+int val = 50;
 int bPin = 9;
 int fPin = 10;
 int serialVal = 99;
@@ -14,7 +14,7 @@ void setup() {
   // put your setup code here, to run once:
   back.write(80);
   back.attach(bPin);                          // Attach servo to board
-  front.write(30);
+  front.write(val);
   front.attach(fPin);   
   delay(500);
 }
