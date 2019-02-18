@@ -39,15 +39,8 @@ if __name__ == "__main__":
         # update robot coordinates
         robotCoord = img.getRobotCoordinates(ctrl.targetCoord)
 
-<<<<<<< HEAD
         # Return to safe zone condition
         if (ctrl.mineCollectedCount > 8) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
-            #print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
-=======
-        # return to safe zone condition
-        if (ctrl.mineCollectedCount > 8) or (
-                ctrl.mineCollectedCount > 0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
->>>>>>> 69c6ef7933e1adc6e779b8f5a96556ab4950d639
             targetCoord = safeZone
 
         # return to start zone condition
