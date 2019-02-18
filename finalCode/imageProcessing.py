@@ -3,7 +3,10 @@ import cv2
 import numpy as np
 import math
 
+
 class Imaging(object):
+    # class to handle all functions related to image processing
+
     def __init__(self, lg, ug, lp, up, lc, uc):
         # Initialising colour boundaries
         self.lg = lg
@@ -13,6 +16,7 @@ class Imaging(object):
         self.lc = lc
         self.uc = uc
 
+        # Initialising other variables
         self.coordMines = []
         self.count = 0
 
@@ -22,22 +26,27 @@ class Imaging(object):
         self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 128)
         self.cap.set(cv2.CAP_PROP_CONTRAST, 128)
         self.cap.set(cv2.CAP_PROP_SATURATION, 128)
-
         print('Camera initialised')
 
     def updateArena(self):
         # Determine coordinates of cells
-        frame = self.capture()
-        rectMines = self.detectColor(frame, 'c', minArea=5);
+
+        frame = self.capture() # capture image
+        rectMines = self.detectColor(frame, 'c', minArea=5)
         for rect in rectMines:
             # check whether mine too dangerous to go to since close to camera limit
-            # TODO check value
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+<<<<<<< HEAD
             if candidate[1] < 450 and candidate[0] < 525 and candidate[1] > 60: # second condition added 11 02 #third on comp day
+=======
+            if candidate[1] < 450 and candidate[0] < 525 and candidate[
+                1] > 20:
+>>>>>>> 69c6ef7933e1adc6e779b8f5a96556ab4950d639
                 self.coordMines.append(candidate)
                 cv2.circle(frame, (round(candidate[0]), round(candidate[1])), 4, (0, 0, 255), -1)
 
-        cv2.imwrite("frameCells.png", frame)
+        cv2.imwrite("frameCells.png", frame) # save initial frame
+
         # starts at lowest y and goes up, ie from top to bottom if image
         self.coordMines = sorted(self.coordMines, key=lambda x: (x[1], x[0]))
 
@@ -45,22 +54,25 @@ class Imaging(object):
         print(self.coordMines)
 
     def capture(self):
+        # returns an OpenCV frame of the arena
         _, frame = self.cap.read()
         frame = frame[0:480, 0:560]
         return frame
 
     def detectColor(self, frame, key, minArea=120):
+        # returns the coordinates of the colour specified by the key
+
         # Convert BGR to HSV
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         if key == 'c':
-            # Threshold the HSV image to get only green colors
+            # Threshold the HSV image to get only cell colours
             mask = cv2.inRange(hsv, self.lc, self.uc)
         elif key == 'g':
-            # Threshold the HSV image to get only green colors
+            # Threshold the HSV image to get only green colours
             mask = cv2.inRange(hsv, self.lg, self.ug)
         elif key == 'p':
-            # Threshold the HSV image to get only green colors
+            # Threshold the HSV image to get only purple colours
             mask = cv2.inRange(hsv, self.lp, self.up)
 
         kernel = np.ones((5, 5), 'int')
@@ -83,9 +95,14 @@ class Imaging(object):
         return coord
 
     def getClosestCell(self, robotCoord, rightLimit=520, leftLimit=50):
+        # returns the coordinates of the closest cell to the robot
+
+        # initialising variables
         closest = 490000
         minMine = [0, 0]
         purpleC = robotCoord[0]
+
+        #
         for mine in self.coordMines:
             if (mine[0] > leftLimit) and (mine[0] < rightLimit):
                 dist = (mine[0] - purpleC[0]) ** 2 + (mine[1] - purpleC[1]) ** 2
@@ -113,15 +130,15 @@ class Imaging(object):
         self.showFrame(frame)
 
         if len(purpleF) == 0 or len(greenF) == 0:
-            #saveImage()
-            #if at bottom and are facing north but can t see it assume it
-            if len(purpleF)>0:
+            # saveImage()
+            # if at bottom and are facing north but can t see it assume it
+            if len(purpleF) > 0:
                 purpleF = purpleF[0]
                 if purpleF[1] + purpleF[3] / 2 > 500:
                     purpleC = (purpleF[0] + purpleF[2] / 2, purpleF[1] + purpleF[3] / 2)
                     print("Assuming in deadzone with purple sticking out: " + purpleC)
                     return purpleC, (purpleC[0], purpleC[1] + 10)
-            return self.getRobotCoordinates(targetCoord, depth=depth+1)
+            return self.getRobotCoordinates(targetCoord, depth=depth + 1)
 
         purpleF = purpleF[0]
         greenF = greenF[0]
@@ -143,22 +160,15 @@ class Imaging(object):
         cv2.imshow('frame', frame)
         cv2.waitKey(25)
 
-    '''
-    def removeMine(self, mine):
-        if mine in self.coordMines:
-            self.coordMines.remove(mine)
-        else:
-            print("Tried to remove inexistent mine" + str(mine))
-    '''
-    #remove mine edited so that removes closest one if there is any
+    # remove mine edited so that removes closest one if there is any
     def removeMine(self, robotCoord):
         cell, dist = self.getClosestCell(robotCoord)
-        print("The distance to the closest cell is "+ str(dist))
-        #critical dist value to be adjusted
+        print("The distance to the closest cell is " + str(dist))
+        # critical dist value to be adjusted
         if dist < 9000:
             self.coordMines.remove(cell)
         else:
-            print("Tried to remove inexistent cell")        
+            print("Tried to remove inexistent cell")
 
     def shutdown(self):
         self.cap.release()
@@ -167,5 +177,5 @@ class Imaging(object):
     def saveImage(self):
         # Save photo if several frames fail
         if (self.count % 5 == 0):
-            cv2.imwrite("frame" + str(self.count/5)+ ".png", frame)
+            cv2.imwrite("frame" + str(self.count / 5) + ".png", frame)
             self.count += 1
