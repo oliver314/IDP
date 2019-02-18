@@ -123,7 +123,7 @@ class Controller(object):
             return False
 
     def wallCells(self):
-        targetCoord = (535, 80)
+        targetCoord = (535, 70)
         xR = 0
         while xR < 535:
             robotCoord = self.img.getRobotCoordinates(targetCoord)

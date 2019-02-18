@@ -115,7 +115,7 @@ void cellRoutine(){
   else{
     open_front();
     drive(150,150);
-    delay(500);
+    delay(700);
     close_front();
     Serial.write(0);
     digitalWrite(capturePin, HIGH);

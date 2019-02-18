@@ -28,7 +28,7 @@ start with open field or handle mine in way at start correctly
 
 if __name__ == "__main__":
     img = Imaging(lg, ug, lp, up, lc, uc)  # Initialise imaging class
-    tp = Transfer('com5')  # Initialise transfer protocol class
+    tp = Transfer('com3')  # Initialise transfer protocol class
     print("Completed initialisation, press space to start")
 
     # start on space
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
         # Return to safe zone condition
         if (ctrl.mineCollectedCount > 8) or (ctrl.mineCollectedCount>0 and len(img.coordMines) == 0) or time.time() - startTime > 300:
-            print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
+            #print(str(ctrl.mineCollectedCount) + " " + str(len(img.coordMines))+" " + str(time.time()-startTime))
             targetCoord = safeZone
 
         # Return to start zone condition
