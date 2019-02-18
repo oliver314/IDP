@@ -116,6 +116,7 @@ class Imaging(object):
         return minMine, closest
 
     def getRobotCoordinates(self, targetCoord, depth=0):
+        # returns the coordinates of the purple and green components of the robot
         if depth > 50:
             return (480, 540), (480, 520)
 
@@ -148,20 +149,24 @@ class Imaging(object):
         return purpleC, greenC
 
     def getOrientation(self, robotCoord):
+        # returns orientation of robot
         purpleC, greenC = robotCoord
         # angle with respect to horizontal, positive as anticlockwise. Counterintuitive sign in expression bc y axis inverted
         return math.degrees(math.atan2(-purpleC[1] + greenC[1], purpleC[0] - greenC[0]))
 
     def getReferenceAngle(self, robotCoord, targetCoord):
+        # returns reference angle between robot and target coordinates
         purpleC, greenC = robotCoord
         return math.degrees(math.atan2(-targetCoord[1] + greenC[1], targetCoord[0] - greenC[0]))
 
     def showFrame(self, frame):
+        # shows image on computer screen
         cv2.imshow('frame', frame)
         cv2.waitKey(25)
 
-    # remove mine edited so that removes closest one if there is any
+
     def removeMine(self, robotCoord):
+        # removes closest cell to robot from list of cells
         cell, dist = self.getClosestCell(robotCoord)
         print("The distance to the closest cell is " + str(dist))
         # critical dist value to be adjusted
@@ -171,6 +176,7 @@ class Imaging(object):
             print("Tried to remove inexistent cell")
 
     def shutdown(self):
+        # shuts down OpenCV
         self.cap.release()
         cv2.destroyAllWindows()
 

@@ -3,6 +3,7 @@ import time  # Required to use delay functions
 
 
 class Transfer(object):
+    # transfer protocol for communicating with robot
     def __init__(self, port='com5'):
         # Establishes connection with Arduino
         print('Establishing connection with Arduino')

@@ -38,13 +38,13 @@ int fClose = 130;
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
-  pinMode(frontTrigPin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(frontEchoPin, INPUT); // Sets the echoPin as an Input
-  pinMode(sideTrigPin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(sideEchoPin, INPUT); // Sets the echoPin as an Input
+  pinMode(frontTrigPin, OUTPUT);            // Sets the trigPin as an Output
+  pinMode(frontEchoPin, INPUT);             // Sets the echoPin as an Input
+  pinMode(sideTrigPin, OUTPUT);             // Sets the trigPin as an Output
+  pinMode(sideEchoPin, INPUT);              // Sets the echoPin as an Input
   front.write(fClose);
   back.write(bClose);
-  close_front();                          // Attach servos to board
+  close_front();                            // Attach servos to board
   close_back();
   AFMS.begin();                             // Create with the default frequency 1.6KHz
   pinMode(movePin, OUTPUT);                 // Configure LED pins
@@ -62,7 +62,7 @@ void setup() {
 
 void loop() {
   while (Serial.available() > 0){
-    //delay(100);
+    // read in serial value
     val = Serial.read();
   }
   driveLoop(val);
@@ -80,7 +80,6 @@ void loop() {
   }
 
   IRValue = analogRead(IRPin);
-  //Serial.println(IRValue);
   if(IRValue > 400){
     //cell caught
     cellRoutine();
@@ -88,6 +87,8 @@ void loop() {
 }
 
 int getDistance(int trigPin, int echoPin){
+  // returns the distance between the wall and the ultrasonic sensor
+  
   // Clears the trigPin
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -104,15 +105,18 @@ int getDistance(int trigPin, int echoPin){
 }
 
 void cellRoutine(){
+  // determines if cell is dangerous or not and causes robot to act accordingly
   halt();
   delay(500);
   //true if dangerous
   if(hallSensorTest()){
+    // reject cell
     drive(150,150);
     delay(450);
     Serial.write(1);
   }
   else{
+    // cell capture routine
     open_front();
     drive(150,150);
     delay(700);
@@ -125,6 +129,7 @@ void cellRoutine(){
 }
 
 boolean hallSensorTest(){
+  // returns value read by hall sensor
   int value;
   value = analogRead(HallPin);
   return (value < 300) ||  (value > 340);
@@ -138,6 +143,8 @@ boolean hallSensorTest(){
 }
 
 void drive(int speedR, int speedL){
+    // drives motors at speeds input
+    
     rightMotor->run(BACKWARD);
     leftMotor->run(BACKWARD);
     if (speedR < 0){
@@ -154,8 +161,10 @@ void drive(int speedR, int speedL){
 }
 
 void driveLoop(int val){
+    // main driving loop; receives input from Python code 
 
     if(val < crit +3 && val > crit -3){
+      // increase speed if driving straight
       drive(200,200);
     }
     else if (val == 255){
@@ -242,6 +251,7 @@ void close_back(){
 
 
 void halt(){
+  // halts motors
   leftMotor->setSpeed(0);
   rightMotor->setSpeed(0);
   digitalWrite(movePin, LOW);
