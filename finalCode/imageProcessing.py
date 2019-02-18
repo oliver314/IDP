@@ -36,12 +36,7 @@ class Imaging(object):
         for rect in rectMines:
             # check whether mine too dangerous to go to since close to camera limit
             candidate = (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
-<<<<<<< HEAD
-            if candidate[1] < 450 and candidate[0] < 525 and candidate[1] > 60: # second condition added 11 02 #third on comp day
-=======
-            if candidate[1] < 450 and candidate[0] < 525 and candidate[
-                1] > 20:
->>>>>>> 69c6ef7933e1adc6e779b8f5a96556ab4950d639
+            if candidate[1] < 450 and candidate[0] < 525 and candidate[1] > 60 and candidate[1] > 20: # second condition added 11 02
                 self.coordMines.append(candidate)
                 cv2.circle(frame, (round(candidate[0]), round(candidate[1])), 4, (0, 0, 255), -1)
 
