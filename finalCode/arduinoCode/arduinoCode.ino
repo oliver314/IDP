@@ -14,6 +14,11 @@ Servo front;
 Servo back;
 
 // Initialise sensor variables
+// defines pins numbers
+int frontTrigPin = 6;
+int frontEchoPin = 7;
+int sideTrigPin = 2;
+int sideEchoPin = 3;
 int IRPin = A9;
 int HallPin = A8;
 int movePin = 8;
@@ -24,15 +29,23 @@ int HallValue = 0;
 int val = 252;
 
 const int crit = 125;
+int counter = 0;
+
+int bClose = 60;
+int bOpen = 141;
+int fOpen = 70;
+int fClose = 130; 
 
 void setup() {
   Serial.begin(9600);                       // set up Serial library at 9600 bps
-  open_back();
-  open_front();
-  front.attach(10);                          // Attach servos to board
-  back.attach(9);
+  pinMode(frontTrigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(frontEchoPin, INPUT); // Sets the echoPin as an Input
+  pinMode(sideTrigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(sideEchoPin, INPUT); // Sets the echoPin as an Input
+  front.write(fClose);
+  back.write(bClose);
+  close_front();                          // Attach servos to board
   close_back();
-  close_front();
   AFMS.begin();                             // Create with the default frequency 1.6KHz
   pinMode(movePin, OUTPUT);                 // Configure LED pins
   pinMode(capturePin, OUTPUT);
@@ -48,12 +61,23 @@ void setup() {
 }
 
 void loop() {
-  
   while (Serial.available() > 0){
     //delay(100);
     val = Serial.read();
   }
   driveLoop(val);
+
+  if (getDistance(frontTrigPin, frontEchoPin) < 7){
+    counter ++;
+  }else{
+    counter  = 0;
+  }
+
+  if(counter > 30){
+    counter = 0;
+    drive(-255,0);
+    delay(1900); 
+  }
 
   IRValue = analogRead(IRPin);
   //Serial.println(IRValue);
@@ -63,19 +87,35 @@ void loop() {
   }
 }
 
+int getDistance(int trigPin, int echoPin){
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  long duration = pulseIn(echoPin, HIGH);
+  // Calculating the distance
+  int distance= duration*0.034/2;
+  // Prints the distance on the Serial Monitor
+  return distance;
+}
+
 void cellRoutine(){
   halt();
   delay(500);
   //true if dangerous
   if(hallSensorTest()){
     drive(150,150);
-    delay(500);
+    delay(450);
     Serial.write(1);
   }
   else{
     open_front();
     drive(150,150);
-    delay(1000);
+    delay(700);
     close_front();
     Serial.write(0);
     digitalWrite(capturePin, HIGH);
@@ -87,7 +127,7 @@ void cellRoutine(){
 boolean hallSensorTest(){
   int value;
   value = analogRead(HallPin);
-  return (value < 280) ||  (value > 320);
+  return (value < 300) ||  (value > 340);
   /*
   int value = 0;
   for(int i = 0; i < 5; i++){
@@ -114,7 +154,11 @@ void drive(int speedR, int speedL){
 }
 
 void driveLoop(int val){
-    if (val == 255){
+
+    if(val < crit +3 && val > crit -3){
+      drive(200,200);
+    }
+    else if (val == 255){
       // Sharp turn right
       drive(crit,-crit);
     }
@@ -123,18 +167,12 @@ void driveLoop(int val){
       // Sharp turn left
       drive(-crit,crit);
     }
-    
-    //arrived at green zone => mechanism to release cells
-    else if (val == 253){
-      // align on wall
-      drive(100,100);
-      delay(4000);
-      // reverse
-      drive(-100,-100);
-      delay(6000);
+    else if (val == 249){  
+      // Backwards
+      drive(-200,-200);
     }
-    
-    else if (val == 249){
+    // At safe zone
+    else if (val == 253){
       // reverse
       drive(-100,-100);
       delay(4000);
@@ -142,7 +180,7 @@ void driveLoop(int val){
       open_back();
       // drive forwards
       drive(150,150);
-      delay(2000);
+      delay(5000);
       close_back();
       halt();
       digitalWrite(capturePin, LOW);
@@ -151,13 +189,14 @@ void driveLoop(int val){
     //go back and go right
     else if(val == 251){
       drive(-255,0);
-      delay(1900);     
+      delay(1850);     
     }
     
     //go back and go left
     else if(val == 250){
       drive(0,-255);
-      delay(1900);
+      delay(1950);
+      
     }
     
     else if(val == 252){
@@ -172,27 +211,35 @@ void driveLoop(int val){
 
 void open_front(){
   // Code to open front
-  front.write(20);
-  delay(500);
+  front.attach(10);
+  front.write(fOpen);
+  delay(1500);
+  front.detach();
 }
 
 void close_front(){
   // Code to close front
-  front.write(70);
-  delay(500);
+  front.attach(10);
+  front.write(fClose);
+  delay(100);
+  front.detach();
 }
 
 void open_back(){
   // Code to open back
-  back.write(125);
+  back.attach(9);
+  back.write(bOpen);
   delay(500);
 }
 
 void close_back(){
   // Code to close back
-  back.write(55);//50
+  back.attach(9);
+  back.write(bClose);
   delay(500);
+  back.detach();
 }
+
 
 void halt(){
   leftMotor->setSpeed(0);
